@@ -1,9 +1,11 @@
-list();
+setInterval(list, 1000);
 
 async function list() {
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());
     const animes = await Promise.all(Object.keys(downloaded).map((id) => fetch(`/anime/${id}/info.json`).then((res) => res.json())));
+    document.querySelector("#list").innerHTML = "";
     const html = animes
+        .reverse()
         .map(
             (anime) => `
         <div class="anime" data-id="${anime.id}">

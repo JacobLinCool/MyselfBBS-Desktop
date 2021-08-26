@@ -3,11 +3,30 @@ const player = document.querySelector("#player");
 const video = document.querySelector("#player-body");
 
 load();
+const pState = {
+    next: false,
+    preload: false,
+};
+
+setInterval(() => {
+    if (!video.paused && video.currentTime > 0 && video.dataset.vid && video.dataset.ep) {
+        fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ time: video.currentTime }),
+        });
+        if (pState.next && !pState.preload && video.currentTime > video.duration - 5 * 60) {
+            fetch(`/anime/${video.dataset.vid}/${video.dataset.ep}/index.m3u8`);
+            pState.preload = true;
+        }
+    }
+}, 1000);
 
 async function load() {
     document.querySelector("#main").style.background = "rgb(30, 30, 50)";
     await new Promise((resolve) => setTimeout(resolve, 300));
     document.querySelector("#bar").style.opacity = "1";
+    await new Promise((resolve) => setTimeout(resolve, 300));
     pageSwitch("mylist");
     [...document.querySelectorAll(".bar-item")].forEach((node) => {
         node.addEventListener("click", () => pageSwitch(node.dataset.page));
@@ -30,10 +49,16 @@ async function pageSwitch(page, query = {}) {
 }
 
 function openPlayer(url) {
+    pState = {
+        next: false,
+        preload: false,
+    };
     player.style.display = "flex";
     player.style.opacity = "1";
 
     player.addEventListener("click", closePlayer);
+
+    const [vid, ep] = url.match(/\d+/g);
 
     (async () => {
         let playlist = await fetch(url)
@@ -53,7 +78,6 @@ function openPlayer(url) {
             video.src = url;
         }
 
-        const [vid, ep] = url.match(/\d+/g);
         if (vid && ep) {
             video.dataset.vid = vid;
             video.dataset.ep = ep;
@@ -61,6 +85,11 @@ function openPlayer(url) {
 
         const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
         if (time) video.currentTime = +time - 1;
+    })();
+
+    (async () => {
+        const info = await fetch(`/anime/${vid}/info.json`).then((r) => r.json());
+        if (Object.keys(info.episodes).length > +ep) pState.next = true;
     })();
 }
 
@@ -74,13 +103,3 @@ async function closePlayer(evt) {
         player.style.display = "none";
     }
 }
-
-setInterval(() => {
-    if (!video.paused && video.currentTime > 0 && video.dataset.vid && video.dataset.ep) {
-        fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ time: video.currentTime }),
-        });
-    }
-}, 1000);
