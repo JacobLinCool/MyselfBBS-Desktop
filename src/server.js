@@ -5,11 +5,20 @@ const Router = require("koa-router");
 const { shell } = require("electron");
 const store = require("./store");
 const { download } = require("./download");
+const { platform } = require("process");
 
 const app = new Koa();
 const router = new Router();
 const config = store.getConfig();
-const root = __filename.substr(0, __filename.lastIndexOf("/") - 3);
+const root = (() => {
+    if (platform === "win32") {
+        return __dirname.substr(0, __dirname.length - 3);
+    } else {
+        return __filename.substr(0, __filename.lastIndexOf("/") - 3);
+    }
+})();
+console.log("__dirname: ", __dirname);
+console.log("Page Root: ", root);
 
 app.use(koaBody());
 

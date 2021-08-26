@@ -17,6 +17,7 @@
         "@electron-forge/maker-rpm": "^6.0.0-beta.59",
         "@electron-forge/maker-squirrel": "^6.0.0-beta.59",
         "@electron-forge/maker-zip": "^6.0.0-beta.59",
+        "@electron-forge/publisher-github": "^6.0.0-beta.59",
         "electron": "^13.2.2"
     },
     "dependencies": {
@@ -29,7 +30,7 @@
     "config": {
         "forge": {
             "packagerConfig": {
-                "icon": "build/MyselfBBS.icon.icns"
+                "icon": "./icon/MyselfBBS"
             },
             "makers": [
                 {
@@ -41,7 +42,8 @@
                 {
                     "name": "@electron-forge/maker-zip",
                     "platforms": [
-                        "darwin"
+                        "darwin",
+                        "win32"
                     ]
                 },
                 {
@@ -51,6 +53,17 @@
                 {
                     "name": "@electron-forge/maker-rpm",
                     "config": {}
+                }
+            ],
+            "publishers": [
+                {
+                    "name": "@electron-forge/publisher-github",
+                    "config": {
+                        "repository": {
+                            "name": "MyselfBBS-Desktop",
+                            "owner": "JacobLinCool"
+                        }
+                    }
                 }
             ]
         }
