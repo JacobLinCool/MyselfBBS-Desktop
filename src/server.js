@@ -3,9 +3,10 @@ const Koa = require("koa");
 const koaBody = require("koa-body");
 const Router = require("koa-router");
 const { shell } = require("electron");
-const store = require("./store");
-const { download } = require("./download");
 const { platform } = require("process");
+const store = require("./store");
+const { download, getPlaylist, getStatus } = require("./download");
+const player = require("./player");
 
 const app = new Koa();
 const router = new Router();
@@ -29,19 +30,16 @@ router.get("/", (ctx, next) => {
     ctx.body = file;
 });
 router.get("/script.js", (ctx, next) => {
-    console.log("GET /script.js");
     const file = fs.readFileSync(root + "page/script.js");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = file;
 });
 router.get("/hls.js", (ctx, next) => {
-    console.log("GET /hls.js");
     const file = fs.readFileSync(root + "page/hls.js");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = file;
 });
 router.get("/style.css", (ctx, next) => {
-    console.log("GET /style.css");
     const file = fs.readFileSync(root + "page/style.css");
     ctx.type = "text/css; charset=utf-8";
     ctx.body = file;
@@ -55,84 +53,66 @@ router.get("/:page/", (ctx, next) => {
 });
 router.get("/:page/script.js", (ctx, next) => {
     const page = ctx.params.page;
-    console.log(`GET /${page}/script.js`);
     const file = fs.readFileSync(root + `page/${page}/script.js`);
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = file;
 });
 router.get("/:page/style.css", (ctx, next) => {
     const page = ctx.params.page;
-    console.log(`GET /${page}/style.css`);
     const file = fs.readFileSync(root + `page/${page}/style.css`);
     ctx.type = "text/css; charset=utf-8";
     ctx.body = file;
 });
 router.get("/config.json", (ctx, next) => {
-    console.log("GET /config.json");
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getConfig());
 });
 router.post("/config.json", (ctx, next) => {
-    console.log("POST /config.json");
     const config = JSON.parse(ctx.request.body);
     store.updateConfig(config);
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getConfig());
 });
 router.get("/reset", (ctx, next) => {
-    console.log("GET /reset");
     store.createConfig();
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getConfig());
 });
 
 router.get("/mylist.json", (ctx, next) => {
-    console.log("GET /mylist.json");
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getMyList());
 });
 router.post("/mylist.json", (ctx, next) => {
-    console.log("POST /mylist.json");
     const mylist = JSON.parse(ctx.request.body);
     store.updateMyList(mylist);
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getMyList());
 });
 router.get("/completed.json", async (ctx, next) => {
-    console.log("GET /completed.json");
     ctx.type = "application/json; charset=utf-8";
     const data = await store.getCompletedList();
     ctx.body = data;
 });
 router.get("/airing.json", async (ctx, next) => {
-    console.log("GET /airing.json");
     ctx.type = "application/json; charset=utf-8";
     const data = await store.getAiringList();
     ctx.body = data;
 });
 router.get("/anime/:id/info.json", async (ctx, next) => {
-    console.log(`GET /anime/${ctx.params.id}/info.json`);
     ctx.type = "application/json; charset=utf-8";
     const data = await store.getAnimeInfo(ctx.params.id);
     ctx.body = data;
 });
 router.get("/anime/:id/cover.jpg", async (ctx, next) => {
-    console.log(`GET /anime/${ctx.params.id}/cover.jpg`);
     ctx.type = "image/jpeg";
     const data = await store.getCover(ctx.params.id);
     ctx.body = data;
 });
-router.get("/open", async (ctx, next) => {
-    console.log("GET /open");
-    const url = ctx.query.url;
-    shell.openExternal(url);
-    ctx.type = "text/plain; charset=utf-8";
-    ctx.body = "";
-});
 router.get("/anime/:id/:ep/index.m3u8", async (ctx, next) => {
     const id = ctx.params.id,
         ep = ctx.params.ep;
-    const file = await download(id, ep);
+    const file = await getPlaylist(id, ep);
     ctx.type = "application/x-mpegURL; charset=utf-8";
     ctx.body = file;
 });
@@ -149,6 +129,31 @@ router.get("/s/e/a/r/c/h/:query", async (ctx, next) => {
     const data = await store.searchAnime(query);
     ctx.type = "application/json; charset=utf-8";
     ctx.body = data;
+});
+router.get("/downloading.json", async (ctx, next) => {
+    ctx.type = "application/json; charset=utf-8";
+    const data = JSON.stringify(getStatus());
+    ctx.body = data;
+});
+router.get("/downloaded.json", async (ctx, next) => {
+    ctx.type = "application/json; charset=utf-8";
+    const data = JSON.stringify(await store.getDownloadedList());
+    ctx.body = data;
+});
+router.get("/history/:id/:ep", async (ctx, next) => {
+    const id = ctx.params.id,
+        ep = ctx.params.ep;
+    const data = await player.getHistory(id, ep);
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify(data);
+});
+router.post("/history/:id/:ep", async (ctx, next) => {
+    const id = ctx.params.id,
+        ep = ctx.params.ep;
+    const data = ctx.request.body;
+    player.updateHistory(id, ep, data.time);
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify(data);
 });
 
 app.use(router.routes()).use(router.allowedMethods());

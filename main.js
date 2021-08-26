@@ -2,12 +2,13 @@ const path = require("path");
 const { app, BrowserWindow } = require("electron");
 const server = require("./src/server");
 const { getConfig, fetchAiringList, fetchCompletedList, fetchAnimeDetails } = require("./src/store");
+const { platform } = require("process");
 
 if (require("electron-squirrel-startup")) return app.quit();
 
 const config = getConfig();
 
-app.setUserTasks([]);
+if (platform === "win32") app.setUserTasks([]);
 
 app.whenReady().then(() => {
     start();
@@ -32,7 +33,7 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
-        frame: false,
+        frame: platform !== "win32",
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },

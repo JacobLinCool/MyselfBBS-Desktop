@@ -138,6 +138,33 @@ async function searchAnime(query) {
     return { result };
 }
 
+async function getDownloadedList() {
+    const list = {};
+    const storage = getConfig().storage;
+    const videoDir = storage + "/video/";
+    fs.readdirSync(videoDir).forEach((vid) => {
+        if (fs.statSync(videoDir + vid).isDirectory()) {
+            list[vid] = [];
+            fs.readdirSync(videoDir + vid).forEach((ep) => {
+                if (fs.statSync(videoDir + vid + "/" + ep).isDirectory()) {
+                    const listPath = videoDir + vid + "/" + ep + "/" + "files.json";
+                    if (fs.existsSync(listPath)) {
+                        const files = JSON.parse(fs.readFileSync(listPath));
+                        let downloaded = 0;
+                        files.forEach((file) => {
+                            if (fs.existsSync(videoDir + vid + "/" + ep + "/" + file)) {
+                                downloaded++;
+                            }
+                        });
+                        list[vid].push({ ep, downloaded, total: files.length });
+                    }
+                }
+            });
+        }
+    });
+    return list;
+}
+
 exports.getConfig = getConfig;
 exports.createConfig = createConfig;
 exports.updateConfig = updateConfig;
@@ -153,3 +180,4 @@ exports.fetchAnimeDetails = fetchAnimeDetails;
 exports.getCover = getCover;
 exports.getVideo = getVideo;
 exports.searchAnime = searchAnime;
+exports.getDownloadedList = getDownloadedList;

@@ -1,6 +1,6 @@
 {
     "name": "myselfbbs-desktop",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "desktop",
     "main": "main.js",
     "scripts": {

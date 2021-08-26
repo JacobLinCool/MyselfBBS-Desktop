@@ -30,26 +30,57 @@ async function pageSwitch(page, query = {}) {
 }
 
 function openPlayer(url) {
-    if (Hls.isSupported()) {
-        var hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-    }
-
     player.style.display = "flex";
     player.style.opacity = "1";
 
     player.addEventListener("click", closePlayer);
+
+    (async () => {
+        let playlist = await fetch(url)
+            .then((res) => res.text())
+            .catch((err) => null);
+        while (!playlist) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            playlist = await fetch(url)
+                .then((res) => res.text())
+                .catch((err) => null);
+        }
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url;
+        }
+
+        const [vid, ep] = url.match(/\d+/g);
+        if (vid && ep) {
+            video.dataset.vid = vid;
+            video.dataset.ep = ep;
+        }
+
+        const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
+        if (time) video.currentTime = +time - 1;
+    })();
 }
 
 async function closePlayer(evt) {
     if (evt.target === player) {
         player.removeEventListener("click", closePlayer);
         video.pause();
+        video.src = "";
         player.style.opacity = "0";
         await new Promise((resolve) => setTimeout(resolve, 300));
         player.style.display = "none";
     }
 }
+
+setInterval(() => {
+    if (!video.paused && video.currentTime > 0 && video.dataset.vid && video.dataset.ep) {
+        fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ time: video.currentTime }),
+        });
+    }
+}, 1000);

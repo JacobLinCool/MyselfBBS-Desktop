@@ -16,7 +16,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    background: linear-gradient(rgb(20, 20, 40) 0%, rgb(20, 20, 40) 85%, rgb(30, 30, 50) 100%);
+    background: linear-gradient(rgb(20, 20, 40) 0%, rgb(20, 20, 40) 85%, transparent 100%);
 
     font-size: 20px;
     color: rgb(228, 228, 228);
@@ -100,4 +100,8 @@ body {
 #player-body {
     width: 100%;
     background: black;
+}
+
+#player-body:focus {
+    outline: none;
 }
