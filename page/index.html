@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MyselfBBS Desktop (Unofficial)</title>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <div id="bar">
+            <div id="bar-mylist" class="bar-item" data-page="mylist">我的收藏</div>
+            <div id="bar-airing" class="bar-item" data-page="airing">本季新番</div>
+            <div id="bar-completed" class="bar-item" data-page="completed">完結動畫</div>
+            <div id="bar-search" class="bar-item" data-page="search">搜尋</div>
+            <div id="bar-settings" class="bar-item" data-page="settings">設定</div>
+        </div>
+        <div id="main">
+            <iframe id="page-loader" src="./mylist/"></iframe>
+        </div>
+        <div id="player">
+            <video id="player-body" src="" controls></video>
+        </div>
+        <script src="./hls.js"></script>
+        <script src="./script.js"></script>
+    </body>
+</html>
