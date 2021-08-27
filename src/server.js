@@ -45,7 +45,7 @@ router.get("/style.css", (ctx, next) => {
     ctx.body = file;
 });
 router.get("/icon.png", (ctx, next) => {
-    const file = fs.readFileSync(root + "icon/MyselfBBS.png");
+    const file = fs.readFileSync(root + "icon/MyselfBBS.full.png");
     ctx.type = "image/png";
     ctx.body = file;
 });

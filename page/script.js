@@ -1,27 +1,34 @@
 const iframe = document.querySelector("#page-loader");
 const player = document.querySelector("#player");
 const video = document.querySelector("#player-body");
+const notice = document.querySelector("#player-notice");
 
 load();
 let pState = {
     next: false,
     preload: false,
+    startAt: 0,
 };
 
 setInterval(() => {
-    if (!video.paused && video.currentTime > 0 && video.dataset.vid && video.dataset.ep) {
+    if (!video.paused && video.currentTime > pState.startAt + 5 && video.dataset.vid && video.dataset.ep) {
         fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ time: video.currentTime }),
         });
         if (pState.next && !pState.preload && video.currentTime > video.duration - 5 * 60) {
-            fetch(`/anime/${video.dataset.vid}/${video.dataset.ep}/index.m3u8`);
+            console.log(`Preload: ${video.dataset.vid} ${(+video.dataset.ep + 1).toString().padStart(3, "0")}`);
+            fetch(`/anime/${video.dataset.vid}/${(+video.dataset.ep + 1).toString().padStart(3, "0")}/index.m3u8`);
             pState.preload = true;
         }
-        if (pState.next && pState.preload && video.currentTime > video.duration - 0.05) {
-            closePlayer({ target: player });
-            openPlayer(`/anime/${video.dataset.vid}/${video.dataset.ep}/index.m3u8`);
+        if (pState.next && pState.preload && video.currentTime >= video.duration - 1) {
+            const next = [video.dataset.vid, (+video.dataset.ep + 1).toString().padStart(3, "0")];
+            console.log(`Next: ${next[0]} ${next[1]}`);
+            closePlayer({ target: player }).then(() => {
+                openPlayer(`/anime/${next[0]}/${next[1]}/index.m3u8`);
+                video.addEventListener("canplaythrough", video.play, { once: true });
+            });
         }
     }
 }, 1000);
@@ -57,9 +64,11 @@ function openPlayer(url) {
     pState = {
         next: false,
         preload: false,
+        startAt: 0,
     };
     player.style.display = "flex";
     player.style.opacity = "1";
+    notice.style.display = "flex";
 
     player.addEventListener("click", closePlayer);
 
@@ -75,6 +84,7 @@ function openPlayer(url) {
                 .then((res) => res.text())
                 .catch((err) => null);
         }
+        notice.style.display = "none";
         if (Hls.isSupported()) {
             var hls = new Hls();
             hls.loadSource(url);
@@ -88,8 +98,13 @@ function openPlayer(url) {
             video.dataset.ep = ep;
         }
 
-        const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
-        if (time) video.currentTime = +time - 1;
+        try {
+            const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
+            if (time && +time + 5 < video.duration) {
+                video.currentTime = +time - 1;
+                pState.startAt = +time - 1;
+            }
+        } catch (err) {}
     })();
 
     (async () => {

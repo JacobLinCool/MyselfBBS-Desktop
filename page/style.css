@@ -1,12 +1,12 @@
 @font-face {
     font-family: "Selected Font";
     src: url("/font.woff2");
+    font-display: swap;
 }
 
 * {
     position: relative;
     font-family: "Selected Font", sans-serif;
-    font-display: swap;
 }
 html,
 body {
@@ -14,6 +14,8 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+
+    background: rgb(20, 20, 40);
 }
 #bar {
     z-index: 10;
@@ -110,4 +112,20 @@ body {
 
 #player-body:focus {
     outline: none;
+}
+
+#player-notice {
+    position: absolute;
+    width: 200px;
+    height: 60px;
+    padding: 8px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(50, 50, 60, 0.85);
+    color: rgb(228, 228, 228);
+    border-radius: 8px;
+    font-size: 20px;
 }
