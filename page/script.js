@@ -3,7 +3,7 @@ const player = document.querySelector("#player");
 const video = document.querySelector("#player-body");
 
 load();
-const pState = {
+let pState = {
     next: false,
     preload: false,
 };
@@ -18,6 +18,10 @@ setInterval(() => {
         if (pState.next && !pState.preload && video.currentTime > video.duration - 5 * 60) {
             fetch(`/anime/${video.dataset.vid}/${video.dataset.ep}/index.m3u8`);
             pState.preload = true;
+        }
+        if (pState.next && pState.preload && video.currentTime > video.duration - 0.05) {
+            closePlayer({ target: player });
+            openPlayer(`/anime/${video.dataset.vid}/${video.dataset.ep}/index.m3u8`);
         }
     }
 }, 1000);
@@ -49,6 +53,7 @@ async function pageSwitch(page, query = {}) {
 }
 
 function openPlayer(url) {
+    if (video.src != "" && video.src != location.origin + "/") return;
     pState = {
         next: false,
         preload: false,

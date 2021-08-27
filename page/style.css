@@ -35,6 +35,7 @@ body {
     height: 48px;
     margin: 2px 12px;
     cursor: pointer;
+    text-shadow: rgb(228, 228, 228) 0px 0px 0px;
 
     transition: all 0.3s;
 
@@ -43,7 +44,6 @@ body {
 .bar-item:hover,
 .bar-item.active {
     font-size: 22px;
-    margin: 0px 8px;
     text-shadow: rgb(228, 228, 228) 0px 0px 1px;
 }
 #bar-settings {
