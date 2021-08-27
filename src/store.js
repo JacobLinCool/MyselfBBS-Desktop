@@ -23,6 +23,7 @@ function createConfig() {
     const config = {
         storage: dirPath + "/storage",
         port: 14810,
+        font: "NotoSansTC-Regular",
     };
     updateConfig(config);
 }

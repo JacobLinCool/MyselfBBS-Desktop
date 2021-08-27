@@ -69,7 +69,7 @@ function openPlayer(url) {
         let playlist = await fetch(url)
             .then((res) => res.text())
             .catch((err) => null);
-        while (!playlist) {
+        while (!playlist && player.style.opacity == "0") {
             await new Promise((resolve) => setTimeout(resolve, 500));
             playlist = await fetch(url)
                 .then((res) => res.text())

@@ -1,6 +1,12 @@
+@font-face {
+    font-family: "Selected Font";
+    src: url("/font.woff2");
+}
+
 * {
     position: relative;
-    font-family: sans-serif;
+    font-family: "Selected Font", sans-serif;
+    font-display: swap;
 }
 html,
 body {

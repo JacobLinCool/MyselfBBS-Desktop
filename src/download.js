@@ -64,9 +64,15 @@ async function download(vid, ep) {
         downloading[vid + "-" + ep] = { status: "listed" };
 
         let queue = [];
-        fileList.forEach((file) => {
+        for (let i = 0; i < fileList.length && i < 5; i++) {
+            const file = fileList[i];
             if (!checkVideoExist(vid, ep, file)) queue.push(downloadVideo(vid, ep, file, host, m3u8Path, storage));
-        });
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        for (let i = 5; i < fileList.length; i++) {
+            const file = fileList[i];
+            if (!checkVideoExist(vid, ep, file)) queue.push(downloadVideo(vid, ep, file, host, m3u8Path, storage));
+        }
         console.log(`${queue.length} files to download`);
         let finished = 0;
         for (let i = 0; i < 5; i++) {

@@ -44,6 +44,11 @@ router.get("/style.css", (ctx, next) => {
     ctx.type = "text/css; charset=utf-8";
     ctx.body = file;
 });
+router.get("/icon.png", (ctx, next) => {
+    const file = fs.readFileSync(root + "icon/MyselfBBS.png");
+    ctx.type = "image/png";
+    ctx.body = file;
+});
 router.get("/:page/", (ctx, next) => {
     const page = ctx.params.page;
     console.log(`GET /${page}`);
@@ -63,6 +68,7 @@ router.get("/:page/style.css", (ctx, next) => {
     ctx.type = "text/css; charset=utf-8";
     ctx.body = file;
 });
+
 router.get("/config.json", (ctx, next) => {
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getConfig());
@@ -78,7 +84,6 @@ router.get("/reset", (ctx, next) => {
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getConfig());
 });
-
 router.get("/mylist.json", (ctx, next) => {
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(store.getMyList());
@@ -154,6 +159,13 @@ router.post("/history/:id/:ep", async (ctx, next) => {
     player.updateHistory(id, ep, data.time);
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(data);
+});
+
+router.get("/font.woff2", async (ctx, next) => {
+    const filename = config.font + ".woff2";
+    const file = fs.readFileSync(root + `page/_FONTS/${filename}`);
+    ctx.type = "application/font-woff2";
+    ctx.body = file;
 });
 
 app.use(router.routes()).use(router.allowedMethods());
