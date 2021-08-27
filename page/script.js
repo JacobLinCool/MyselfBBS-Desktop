@@ -9,6 +9,9 @@ let pState = {
     preload: false,
     startAt: 0,
 };
+video.addEventListener("canplaythrough", () => {
+    setTimeout(video.play, 500);
+});
 
 setInterval(() => {
     if (!video.paused && video.currentTime > pState.startAt + 5 && video.dataset.vid && video.dataset.ep) {
@@ -27,7 +30,6 @@ setInterval(() => {
             console.log(`Next: ${next[0]} ${next[1]}`);
             closePlayer({ target: player }).then(() => {
                 openPlayer(`/anime/${next[0]}/${next[1]}/index.m3u8`);
-                video.addEventListener("canplaythrough", video.play, { once: true });
             });
         }
     }
@@ -101,8 +103,14 @@ function openPlayer(url) {
         try {
             const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
             if (time && +time + 5 < video.duration) {
-                video.currentTime = +time - 1;
-                pState.startAt = +time - 1;
+                video.addEventListener(
+                    "canplaythrough",
+                    () => {
+                        video.currentTime = +time - 1;
+                        pState.startAt = +time - 1;
+                    },
+                    { once: true }
+                );
             }
         } catch (err) {}
     })();

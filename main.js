@@ -6,8 +6,6 @@ const { platform } = require("process");
 
 if (require("electron-squirrel-startup")) return app.quit();
 
-const config = getConfig();
-
 if (platform === "win32") app.setUserTasks([]);
 
 app.whenReady().then(() => {
@@ -23,13 +21,14 @@ app.on("window-all-closed", () => {
 });
 
 function start() {
+    const config = getConfig();
     fetchAiringList();
     fetchCompletedList();
     fetchAnimeDetails();
-    createWindow();
+    createWindow(config);
 }
 
-function createWindow() {
+function createWindow(config) {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,

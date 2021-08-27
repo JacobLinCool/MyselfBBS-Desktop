@@ -2,10 +2,9 @@ const fs = require("fs");
 const Koa = require("koa");
 const koaBody = require("koa-body");
 const Router = require("koa-router");
-const { shell } = require("electron");
 const { platform } = require("process");
 const store = require("./store");
-const { download, getPlaylist, getStatus } = require("./download");
+const { getPlaylist, getStatus } = require("./download");
 const player = require("./player");
 
 const app = new Koa();
@@ -162,10 +161,16 @@ router.post("/history/:id/:ep", async (ctx, next) => {
 });
 
 router.get("/font.woff2", async (ctx, next) => {
-    const filename = config.font + ".woff2";
+    const filename = store.getConfig().font + ".woff2";
     const file = fs.readFileSync(root + `page/_FONTS/${filename}`);
     ctx.type = "application/font-woff2";
     ctx.body = file;
+});
+
+router.get("/reload", async (ctx, next) => {
+    await Promise.all([store.fetchAiringList(), store.fetchCompletedList()]);
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify({ success: true });
 });
 
 app.use(router.routes()).use(router.allowedMethods());

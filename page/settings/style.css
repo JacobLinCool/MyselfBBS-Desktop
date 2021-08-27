@@ -7,6 +7,10 @@
 * {
     position: relative;
     font-family: "Selected Font", sans-serif;
+    transition: opacity 0.2s;
+}
+*:disabled {
+    opacity: 0.5;
 }
 html,
 body {

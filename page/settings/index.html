@@ -14,7 +14,7 @@
                 <input id="storage" /><br />
                 <label>Port (下次啟動生效)</label><br />
                 <input id="port" /><br />
-                <label>字體 (下次啟動生效)</label><br />
+                <label>字體 (重新載入生效)</label><br />
                 <select id="font">
                     <option value="NotoSansTC-Regular">NotoSansTC</option>
                     <option value="FakePearl-Regular">FakePearl</option>
@@ -25,7 +25,11 @@
                     <option value="NaikaiFont-Regular-Lite">NaikaiFont</option></select
                 ><br />
                 <button id="save">儲存</button>
-                <button id="reset">重置</button>
+                <button id="reset">重置</button><br /><br />
+
+                <h3>其他</h3>
+                <button id="reload">更新列表</button>
+                <button onclick="window.parent.location.reload();">重新載入</button>
             </div>
             <div style="height: 60px"></div>
         </div>
