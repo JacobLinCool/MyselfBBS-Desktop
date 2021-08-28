@@ -19,9 +19,10 @@ function updateHistory(vid, ep, time) {
     fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
 }
 
-function getHistory(vid, ep) {
+function getHistory(vid, ep = null) {
     const history = getAllHistory();
-    return history[vid] ? history[vid][ep] : null;
+    if (ep) return history[vid] ? history[vid][ep] : null;
+    return history[vid];
 }
 
 exports.getAllHistory = getAllHistory;

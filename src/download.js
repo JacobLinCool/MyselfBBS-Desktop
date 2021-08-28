@@ -74,6 +74,7 @@ async function download(vid, ep) {
             if (!checkVideoExist(vid, ep, file)) queue.push(downloadVideo(vid, ep, file, host, m3u8Path, storage));
         }
         console.log(`${queue.length} files to download`);
+        downloading[vid + "-" + ep] = { status: "downloading", total: fileList.length };
         let finished = 0;
         for (let i = 0; i < 5; i++) {
             if (i < fileList.length) {
@@ -85,6 +86,7 @@ async function download(vid, ep) {
                             if (checkVideoExist(vid, ep, fileList[i])) {
                                 clearInterval(interval);
                                 finished++;
+                                downloading[vid + "-" + ep].finished = fileList.length - queue.length + finished;
                                 r();
                             }
                         }, 500);
@@ -97,11 +99,11 @@ async function download(vid, ep) {
             for (let i = 0; i < queue.length; i++) {
                 await queue[i];
                 finished++;
-                downloading[vid + "-" + ep] = { status: "first-view", total: fileList.length, finished: fileList.length - queue.length + finished };
+                downloading[vid + "-" + ep].finished = fileList.length - queue.length + finished;
             }
-            downloading[vid + "-" + ep] = "finished";
+            downloading[vid + "-" + ep].status = "finished";
         })();
-        console.log(`Downloading ${anime.title}(${vid}) Episode ${ep} Finished`);
+        console.log(`${anime.title}(${vid}) Episode ${ep} Can Play Now`);
         return playlist;
     } else {
         console.log("Donwload has started.");

@@ -1,5 +1,5 @@
 list();
-setInterval(update, 1000);
+setInterval(update, 2000);
 
 async function list() {
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());

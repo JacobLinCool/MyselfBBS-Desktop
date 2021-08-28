@@ -1,6 +1,6 @@
 {
     "name": "myselfbbs-desktop",
-    "version": "0.9.5",
+    "version": "0.9.6",
     "description": "desktop",
     "main": "main.js",
     "scripts": {
@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "electron-squirrel-startup": "^1.0.0",
+        "fuse.js": "^6.4.6",
         "koa": "^2.13.1",
         "koa-body": "^4.2.0",
         "koa-router": "^10.1.1",

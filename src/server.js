@@ -120,6 +120,13 @@ router.get("/anime/:id/:ep/index.m3u8", async (ctx, next) => {
     ctx.type = "application/x-mpegURL; charset=utf-8";
     ctx.body = file;
 });
+router.get("/anime/:id/:ep/sprite.jpg", async (ctx, next) => {
+    const id = ctx.params.id,
+        ep = ctx.params.ep;
+    ctx.type = "image/jpeg";
+    const data = await store.getSprite(id, ep);
+    ctx.body = data;
+});
 router.get("/anime/:id/:ep/:file", async (ctx, next) => {
     const id = ctx.params.id,
         ep = ctx.params.ep,
@@ -148,6 +155,12 @@ router.get("/history/:id/:ep", async (ctx, next) => {
     const id = ctx.params.id,
         ep = ctx.params.ep;
     const data = await player.getHistory(id, ep);
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify(data);
+});
+router.get("/history/:id/", async (ctx, next) => {
+    const id = ctx.params.id;
+    const data = await player.getHistory(id);
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(data);
 });

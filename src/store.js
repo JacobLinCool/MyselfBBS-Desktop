@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { app } = require("electron");
 const fetch = require("node-fetch");
+const Fuse = require("fuse.js");
 
 const dirPath = app.getPath("userData");
 const configPath = dirPath + "/config.json";
@@ -119,23 +120,32 @@ async function getVideo(id, ep, file) {
 async function searchAnime(query) {
     if (details.length === 0) await fetchAnimeDetails();
     const animes = JSON.parse(JSON.stringify(details));
-    const queries = query
-        .split(" ")
-        .map((x) => x.trim().toLowerCase())
-        .filter((x) => x !== "");
 
-    const result = animes
-        .map((x) => {
-            let score = 0;
-            queries.forEach((q) => {
-                if (x.title && x.title.toLowerCase().includes(q)) score += 10;
-                if (x.category && x.category.includes(q)) score += 3;
-                if (x.description && x.description.includes(q)) score += 1;
-            });
-            return { ...x, score };
-        })
-        .filter((x) => x.score > 0)
-        .sort((a, b) => b.score - a.score);
+    const options = {
+        includeScore: true,
+        keys: [
+            {
+                name: "title",
+                weight: 1,
+            },
+            {
+                name: "author",
+                weight: 0.9,
+            },
+            {
+                name: "category",
+                weight: 0.5,
+            },
+            {
+                name: "description",
+                weight: 0.2,
+            },
+        ],
+    };
+
+    const fuse = new Fuse(animes, options);
+    const result = fuse.search(query);
+
     return { result };
 }
 
@@ -166,6 +176,18 @@ async function getDownloadedList() {
     return list;
 }
 
+async function getSprite(id, ep) {
+    const storage = getConfig().storage;
+    const path = storage + "/sprite/" + id + "/" + ep + ".png";
+    checkDirExists(storage + "/sprite/" + id + "/");
+    if (!fs.existsSync(path)) {
+        const list = await fetch(`https://v.myself-bbs.com/vpx/${id}/${ep}/`).then((res) => res.json());
+        const buffer = await fetch(list.vtt).then((res) => res.buffer());
+        fs.writeFileSync(path, buffer);
+    }
+    return fs.readFileSync(path);
+}
+
 exports.getConfig = getConfig;
 exports.createConfig = createConfig;
 exports.updateConfig = updateConfig;
@@ -182,3 +204,4 @@ exports.getCover = getCover;
 exports.getVideo = getVideo;
 exports.searchAnime = searchAnime;
 exports.getDownloadedList = getDownloadedList;
+exports.getSprite = getSprite;

@@ -10,7 +10,9 @@ let pState = {
     startAt: 0,
 };
 video.addEventListener("canplaythrough", () => {
-    setTimeout(video.play, 500);
+    setTimeout(() => {
+        video.play();
+    }, 500);
 });
 
 setInterval(() => {
@@ -62,7 +64,8 @@ async function pageSwitch(page, query = {}) {
 }
 
 function openPlayer(url) {
-    if (video.src != "" && video.src != location.origin + "/") return;
+    if (video.duration) return;
+    console.log(`Player Open: ${url}`);
     pState = {
         next: false,
         preload: false,
@@ -70,6 +73,7 @@ function openPlayer(url) {
     };
     player.style.display = "flex";
     player.style.opacity = "1";
+    notice.innerHTML = "請稍等一下喔";
     notice.style.display = "flex";
 
     player.addEventListener("click", closePlayer);
@@ -80,11 +84,21 @@ function openPlayer(url) {
         let playlist = await fetch(url)
             .then((res) => res.text())
             .catch((err) => null);
-        while (!playlist && player.style.opacity == "0") {
-            await new Promise((resolve) => setTimeout(resolve, 500));
+        while (!playlist && player.style.opacity == "1") {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             playlist = await fetch(url)
                 .then((res) => res.text())
                 .catch((err) => null);
+            let status = (await fetch(`/downloading.json`).then((res) => res.json()))[vid + "-" + ep];
+            if (status) {
+                if (status.status == "started") notice.innerHTML = "準備中.";
+                else if (status.status == "sourced") notice.innerHTML = "準備中..";
+                else if (status.status == "listed") notice.innerHTML = "準備中...";
+                else {
+                    notice.innerHTML = "下載中...";
+                    if (status.finished) notice.innerHTML += ` (${((status.finished / status.total) * 100).toFixed(1)}%)`;
+                }
+            }
         }
         notice.style.display = "none";
         if (Hls.isSupported()) {
@@ -123,6 +137,7 @@ function openPlayer(url) {
 
 async function closePlayer(evt) {
     if (evt.target === player) {
+        console.log("Player Close");
         player.removeEventListener("click", closePlayer);
         video.pause();
         video.src = "";
