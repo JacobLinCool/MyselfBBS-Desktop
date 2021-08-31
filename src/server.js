@@ -186,6 +186,17 @@ router.get("/reload", async (ctx, next) => {
     ctx.body = JSON.stringify({ success: true });
 });
 
+router.get("/api/finished/:vid/:ep", async (ctx, next) => {
+    const vid = ctx.params.vid,
+        ep = ctx.params.ep;
+    const config = store.getConfig();
+    if (config.autoRemove) {
+        await store.removeVideo(vid, ep);
+    }
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify({ success: true });
+});
+
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(config.port || 14810);

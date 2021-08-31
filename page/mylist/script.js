@@ -1,9 +1,11 @@
 list();
 setInterval(update, 2000);
 
+const _animes = {};
+
 async function list() {
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());
-    const animes = await Promise.all(Object.keys(downloaded).map((id) => fetch(`/anime/${id}/info.json`).then((res) => res.json())));
+    const animes = await Promise.all(Object.keys(downloaded).map((id) => getInfo(id)));
     document.querySelector("#list").innerHTML = "";
     const html = animes
         .reverse()
@@ -51,7 +53,7 @@ async function list() {
 
 async function update() {
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());
-    const animes = await Promise.all(Object.keys(downloaded).map((id) => fetch(`/anime/${id}/info.json`).then((res) => res.json())));
+    const animes = await Promise.all(Object.keys(downloaded).map((id) => getInfo(id)));
 
     animes.reverse().map((anime) => {
         const node = document.querySelector(`.anime[data-id="${anime.id}"]`);
@@ -76,4 +78,9 @@ async function update() {
                 .join("");
         }
     });
+}
+
+async function getInfo(id) {
+    if (!_animes[id]) _animes[id] = await fetch(`/anime/${id}/info.json`).then((res) => res.json());
+    return _animes[id];
 }

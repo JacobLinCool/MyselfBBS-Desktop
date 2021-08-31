@@ -9,11 +9,6 @@ let pState = {
     preload: false,
     startAt: 0,
 };
-video.addEventListener("canplaythrough", () => {
-    setTimeout(() => {
-        video.play();
-    }, 500);
-});
 
 setInterval(() => {
     if (!video.paused && video.currentTime > pState.startAt + 5 && video.dataset.vid && video.dataset.ep) {
@@ -28,6 +23,9 @@ setInterval(() => {
             pState.preload = true;
         }
         if (pState.next && pState.preload && video.currentTime >= video.duration - 1) {
+            setTimeout(() => {
+                fetch(`http://localhost:14810/api/finished/${video.dataset.vid}/${video.dataset.ep.padStart(3, "0")}`);
+            }, 30000);
             const next = [video.dataset.vid, (+video.dataset.ep + 1).toString().padStart(3, "0")];
             console.log(`Next: ${next[0]} ${next[1]}`);
             closePlayer({ target: player }).then(() => {
@@ -101,12 +99,13 @@ function openPlayer(url) {
             }
         }
         notice.style.display = "none";
-        if (Hls.isSupported()) {
-            var hls = new Hls();
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url;
+            video.load();
+        } else if (Hls.isSupported()) {
+            window.hls = new Hls();
             hls.loadSource(url);
             hls.attachMedia(video);
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = url;
         }
 
         if (vid && ep) {
@@ -114,19 +113,24 @@ function openPlayer(url) {
             video.dataset.ep = ep;
         }
 
+        let time;
         try {
-            const time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
-            if (time && +time + 5 < video.duration) {
-                video.addEventListener(
-                    "canplaythrough",
-                    () => {
-                        video.currentTime = +time - 1;
-                        pState.startAt = +time - 1;
-                    },
-                    { once: true }
-                );
-            }
+            time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
         } catch (err) {}
+
+        video.addEventListener(
+            "canplaythrough",
+            async () => {
+                if (time && +time + 5 < video.duration) {
+                    await new Promise((r) => setTimeout(r, 100));
+                    video.currentTime = +time - 1;
+                    pState.startAt = +time - 1;
+                }
+                await new Promise((r) => setTimeout(r, 200));
+                video.play();
+            },
+            { once: true }
+        );
     })();
 
     (async () => {
@@ -137,10 +141,11 @@ function openPlayer(url) {
 
 async function closePlayer(evt) {
     if (evt.target === player) {
-        console.log("Player Close");
+        console.log("Player Closed");
         player.removeEventListener("click", closePlayer);
         video.pause();
         video.src = "";
+        hls.stopLoad();
         player.style.opacity = "0";
         await new Promise((resolve) => setTimeout(resolve, 300));
         player.style.display = "none";

@@ -1,7 +1,15 @@
 let lastSearch = "";
 let changed = false;
 document.querySelector("#search").addEventListener("keydown", (evt) => {
-    if (evt.key === "Enter" && evt.target.value.length > 0) {
+    if (evt.key === "Tab") {
+        evt.preventDefault();
+        if (evt.target.value.trim() === "") {
+            evt.target.value = evt.target.placeholder;
+            changed = true;
+            setTimeout(search, 10);
+            randomSearchTip();
+        }
+    } else if (evt.key === "Enter" && evt.target.value.length > 0) {
         changed = true;
         evt.target.blur();
     } else if (evt.key !== "Backspace" && evt.key !== "Delete") {

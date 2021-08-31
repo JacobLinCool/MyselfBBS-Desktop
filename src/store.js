@@ -25,6 +25,7 @@ function createConfig() {
         storage: dirPath + "/storage",
         port: 14810,
         font: "NotoSansTC-Regular",
+        autoRemove: true,
     };
     updateConfig(config);
 }
@@ -188,6 +189,12 @@ async function getSprite(id, ep) {
     return fs.readFileSync(path);
 }
 
+async function removeVideo(id, ep) {
+    const storage = getConfig().storage;
+    const path = `${storage}/video/${id}/${ep}/`;
+    if (fs.existsSync(path)) fs.rmdirSync(path, { recursive: true });
+}
+
 exports.getConfig = getConfig;
 exports.createConfig = createConfig;
 exports.updateConfig = updateConfig;
@@ -205,3 +212,4 @@ exports.getVideo = getVideo;
 exports.searchAnime = searchAnime;
 exports.getDownloadedList = getDownloadedList;
 exports.getSprite = getSprite;
+exports.removeVideo = removeVideo;
