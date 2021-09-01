@@ -1,14 +1,19 @@
-list();
-setInterval(update, 2000);
-
 const _animes = {};
+let prev = null;
+let updating = false;
+
+list();
+// setInterval(async () => {
+//     update();
+// }, 5000);
 
 async function list() {
+    updating = true;
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());
     const animes = await Promise.all(Object.keys(downloaded).map((id) => getInfo(id)));
     document.querySelector("#list").innerHTML = "";
-    const html = animes
-        .reverse()
+    prev = animes.reverse();
+    const html = prev
         .map(
             (anime) => `
         <div class="anime" data-id="${anime.id}">
@@ -49,13 +54,19 @@ async function list() {
             window.parent.pageSwitch("anime", { id: node.dataset.id });
         });
     });
+    updating = false;
 }
 
 async function update() {
+    if (updating) return;
+    updating = true;
     const downloaded = await fetch("/downloaded.json").then((res) => res.json());
     const animes = await Promise.all(Object.keys(downloaded).map((id) => getInfo(id)));
 
     animes.reverse().map((anime) => {
+        if (JSON.stringify(anime) === JSON.stringify(prev.find((x) => x.id === anime.id))) {
+            return;
+        }
         const node = document.querySelector(`.anime[data-id="${anime.id}"]`);
         if (node) {
             node.querySelector(".downloaded-details").innerHTML = Object.keys(anime.episodes)
@@ -78,6 +89,8 @@ async function update() {
                 .join("");
         }
     });
+    prev = animes;
+    updating = false;
 }
 
 async function getInfo(id) {

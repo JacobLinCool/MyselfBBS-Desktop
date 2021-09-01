@@ -1,6 +1,7 @@
 const path = require("path");
 const { app, BrowserWindow } = require("electron");
-const server = require("./src/server");
+const { log, error } = require("./src/log");
+require("./src/server");
 const { getConfig, fetchAiringList, fetchCompletedList, fetchAnimeDetails } = require("./src/store");
 const { platform } = require("process");
 
@@ -9,6 +10,7 @@ if (require("electron-squirrel-startup")) return app.quit();
 if (platform === "win32") app.setUserTasks([]);
 
 app.whenReady().then(() => {
+    log("App Start");
     start();
 
     app.on("activate", () => {
@@ -18,6 +20,10 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
+});
+
+app.on("quit", () => {
+    log("App Quit");
 });
 
 function start() {

@@ -3,11 +3,22 @@ const player = document.querySelector("#player");
 const video = document.querySelector("#player-body");
 const notice = document.querySelector("#player-notice");
 
+document.querySelector("#interactive").addEventListener(
+    "click",
+    async () => {
+        document.querySelector("#interactive").style.opacity = "0";
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        document.querySelector("#interactive").style.display = "none";
+    },
+    { once: true }
+);
+
 load();
 let pState = {
     next: false,
     preload: false,
     startAt: 0,
+    finished: false,
 };
 
 setInterval(() => {
@@ -22,10 +33,11 @@ setInterval(() => {
             fetch(`/anime/${video.dataset.vid}/${(+video.dataset.ep + 1).toString().padStart(3, "0")}/index.m3u8`);
             pState.preload = true;
         }
+        if (pState.next && pState.preload && video.currentTime >= video.duration - (CONFIG.autoRemoveTime || 1) && !pState.finished) {
+            fetch(`/api/finished/${video.dataset.vid}/${video.dataset.ep.padStart(3, "0")}`);
+            pState.finished = true;
+        }
         if (pState.next && pState.preload && video.currentTime >= video.duration - 1) {
-            setTimeout(() => {
-                fetch(`http://localhost:14810/api/finished/${video.dataset.vid}/${video.dataset.ep.padStart(3, "0")}`);
-            }, 30000);
             const next = [video.dataset.vid, (+video.dataset.ep + 1).toString().padStart(3, "0")];
             console.log(`Next: ${next[0]} ${next[1]}`);
             closePlayer({ target: player }).then(() => {
@@ -44,6 +56,7 @@ async function load() {
     [...document.querySelectorAll(".bar-item")].forEach((node) => {
         node.addEventListener("click", () => pageSwitch(node.dataset.page));
     });
+    window.CONFIG = await fetch("/config.json").then((r) => r.json());
 }
 
 async function pageSwitch(page, query = {}) {
@@ -56,7 +69,9 @@ async function pageSwitch(page, query = {}) {
     iframe.style.opacity = "0";
     await new Promise((resolve) => setTimeout(resolve, 300));
     iframe.src = location;
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => {
+        iframe.addEventListener("load", resolve, { once: true });
+    });
     iframe.style.opacity = "1";
     await new Promise((resolve) => setTimeout(resolve, 300));
 }
@@ -68,6 +83,7 @@ function openPlayer(url) {
         next: false,
         preload: false,
         startAt: 0,
+        finished: false,
     };
     player.style.display = "flex";
     player.style.opacity = "1";
@@ -99,13 +115,13 @@ function openPlayer(url) {
             }
         }
         notice.style.display = "none";
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = url;
-            video.load();
-        } else if (Hls.isSupported()) {
+        if (Hls.isSupported()) {
             window.hls = new Hls();
             hls.loadSource(url);
             hls.attachMedia(video);
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url;
+            video.load();
         }
 
         if (vid && ep) {
@@ -122,12 +138,20 @@ function openPlayer(url) {
             "canplaythrough",
             async () => {
                 if (time && +time + 5 < video.duration) {
-                    await new Promise((r) => setTimeout(r, 100));
+                    await new Promise((r) => setTimeout(r, 50));
                     video.currentTime = +time - 1;
                     pState.startAt = +time - 1;
+                    await new Promise((r) => {
+                        video.addEventListener("canplaythrough", r, { once: true });
+                        setTimeout(r, 300);
+                    });
                 }
                 await new Promise((r) => setTimeout(r, 200));
-                video.play();
+                try {
+                    await video.play();
+                } catch (err) {
+                    console.log(err.message);
+                }
             },
             { once: true }
         );
@@ -143,11 +167,16 @@ async function closePlayer(evt) {
     if (evt.target === player) {
         console.log("Player Closed");
         player.removeEventListener("click", closePlayer);
-        video.pause();
+        await video.pause();
         video.src = "";
-        hls.stopLoad();
+        if (hls) hls.stopLoad();
         player.style.opacity = "0";
         await new Promise((resolve) => setTimeout(resolve, 300));
         player.style.display = "none";
     }
+}
+
+function openExternal(url) {
+    let options = "height=700, width=1035, autoHideMenuBar=true, frame=true, nodeIntegration=no";
+    window.open(url, "_blank", options);
 }

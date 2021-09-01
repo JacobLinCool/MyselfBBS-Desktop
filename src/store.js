@@ -1,7 +1,9 @@
 const fs = require("fs");
+const { performance } = require("perf_hooks");
 const { app } = require("electron");
 const fetch = require("node-fetch");
 const Fuse = require("fuse.js");
+const { log, error } = require("./log");
 
 const dirPath = app.getPath("userData");
 const configPath = dirPath + "/config.json";
@@ -9,6 +11,7 @@ const configPath = dirPath + "/config.json";
 checkDirExists(dirPath);
 
 let details = [];
+const COVER = {};
 
 function checkDirExists(path) {
     if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
@@ -26,12 +29,16 @@ function createConfig() {
         port: 14810,
         font: "NotoSansTC-Regular",
         autoRemove: true,
+        autoRemoveTime: 1,
+        FVL: 3,
     };
     updateConfig(config);
 }
 
 function updateConfig(config) {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    console.log("Config Updated", config);
+    log("Config Updated", config);
 }
 
 function getMyList() {
@@ -106,9 +113,10 @@ async function getCover(id) {
         const url = info.image;
         const buffer = await fetch(url).then((res) => res.buffer());
         fs.writeFileSync(path, buffer);
-        return buffer;
+        COVER[id] = buffer;
     }
-    return fs.readFileSync(path);
+    if (!COVER[id]) COVER[id] = fs.readFileSync(path);
+    return COVER[id];
 }
 
 async function getVideo(id, ep, file) {
@@ -120,6 +128,7 @@ async function getVideo(id, ep, file) {
 
 async function searchAnime(query) {
     if (details.length === 0) await fetchAnimeDetails();
+    const startTime = performance.now();
     const animes = JSON.parse(JSON.stringify(details));
 
     const options = {
@@ -146,6 +155,10 @@ async function searchAnime(query) {
 
     const fuse = new Fuse(animes, options);
     const result = fuse.search(query);
+
+    const endTime = performance.now();
+    console.log(`Searching anime "${query}" took ${(endTime - startTime).toFixed(2)}ms`);
+    log(`Searching anime "${query}" took ${(endTime - startTime).toFixed(2)}ms`);
 
     return { result };
 }

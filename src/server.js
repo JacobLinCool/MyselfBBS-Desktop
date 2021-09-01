@@ -3,6 +3,7 @@ const Koa = require("koa");
 const koaBody = require("koa-body");
 const Router = require("koa-router");
 const { platform } = require("process");
+const { log, error } = require("./log");
 const store = require("./store");
 const { getPlaylist, getStatus } = require("./download");
 const player = require("./player");
@@ -17,55 +18,61 @@ const root = (() => {
         return __filename.substr(0, __filename.lastIndexOf("/") - 3);
     }
 })();
-console.log("__dirname: ", __dirname);
-console.log("Page Root: ", root);
+console.log("Root: ", root);
 
 app.use(koaBody());
 
+const pageCache = {};
+
 router.get("/", (ctx, next) => {
     console.log("GET /");
-    const file = fs.readFileSync(root + "page/index.html");
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/script.js", (ctx, next) => {
-    const file = fs.readFileSync(root + "page/script.js");
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/hls.js", (ctx, next) => {
-    const file = fs.readFileSync(root + "page/hls.js");
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/hls.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/style.css", (ctx, next) => {
-    const file = fs.readFileSync(root + "page/style.css");
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/icon.png", (ctx, next) => {
-    const file = fs.readFileSync(root + "icon/MyselfBBS.full.png");
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.full.png`);
     ctx.type = "image/png";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
+});
+router.get("/favicon.ico", (ctx, next) => {
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.ico`);
+    ctx.type = "image/x-icon";
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/", (ctx, next) => {
     const page = ctx.params.page;
     console.log(`GET /${page}`);
-    const file = fs.readFileSync(root + `page/${page}/index.html`);
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/script.js", (ctx, next) => {
     const page = ctx.params.page;
-    const file = fs.readFileSync(root + `page/${page}/script.js`);
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/style.css", (ctx, next) => {
     const page = ctx.params.page;
-    const file = fs.readFileSync(root + `page/${page}/style.css`);
+    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
-    ctx.body = file;
+    ctx.body = pageCache[ctx.path];
 });
 
 router.get("/config.json", (ctx, next) => {
@@ -175,9 +182,9 @@ router.post("/history/:id/:ep", async (ctx, next) => {
 
 router.get("/font.woff2", async (ctx, next) => {
     const filename = store.getConfig().font + ".woff2";
-    const file = fs.readFileSync(root + `page/_FONTS/${filename}`);
+    if (!pageCache[filename]) pageCache[filename] = fs.readFileSync(`${root}page/_FONTS/${filename}`);
     ctx.type = "application/font-woff2";
-    ctx.body = file;
+    ctx.body = pageCache[filename];
 });
 
 router.get("/reload", async (ctx, next) => {
@@ -191,7 +198,13 @@ router.get("/api/finished/:vid/:ep", async (ctx, next) => {
         ep = ctx.params.ep;
     const config = store.getConfig();
     if (config.autoRemove) {
-        await store.removeVideo(vid, ep);
+        console.log(`Remove ${vid}-${ep} in ${5 + (+config.autoRemoveTime || 0)}s`);
+        log(`Remove ${vid}-${ep} in ${5 + (+config.autoRemoveTime || 0)}s`);
+        setTimeout(() => {
+            console.log(`Removed ${vid}-${ep}`);
+            log(`Removed ${vid}-${ep}`);
+            store.removeVideo(vid, ep);
+        }, (5 + (+config.autoRemoveTime || 0)) * 1000);
     }
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify({ success: true });

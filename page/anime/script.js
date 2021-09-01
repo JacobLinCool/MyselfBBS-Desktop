@@ -24,7 +24,8 @@ async function getInfo() {
     list.appendChild(premiere);
     const myselfBBS = document.createElement("li");
     myselfBBS.innerHTML =
-        "MyselfBBS: " + `<a href="http://myself-bbs.com/thread-${data.id}-1-1.html" target="_blank">http://myself-bbs.com/thread-${data.id}-1-1.html</a>`;
+        "MyselfBBS: " +
+        `<a href="javascript:window.parent.openExternal('http://myself-bbs.com/thread-${data.id}-1-1.html')">http://myself-bbs.com/thread-${data.id}-1-1.html</a>`;
     list.appendChild(myselfBBS);
     document.querySelector("#info").appendChild(list);
 
@@ -43,4 +44,10 @@ async function getInfo() {
             window.parent.openPlayer(`/anime/${data.id}/${ep}/index.m3u8`);
         });
     });
+
+    document.querySelector("#title").style.opacity = 1;
+    document.querySelector("#description").style.opacity = 1;
+    document.querySelector("#image").style.opacity = 1;
+    document.querySelector("#info").style.opacity = 1;
+    document.querySelector("#episodes").style.opacity = 1;
 }

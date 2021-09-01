@@ -50,6 +50,8 @@ body {
     display: grid;
     grid-template-columns: 300px 1fr;
     grid-gap: 16px;
+
+    animation: fadeIn 0.3s;
 }
 
 .anime:hover {
@@ -90,4 +92,13 @@ body {
 
 .nothing {
     color: white;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
