@@ -22,55 +22,56 @@ console.log("Root: ", root);
 
 app.use(koaBody());
 
+const noCache = true;
 const pageCache = {};
 
 router.get("/", (ctx, next) => {
     console.log("GET /");
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/index.html`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/script.js", (ctx, next) => {
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/script.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/hls.js", (ctx, next) => {
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/hls.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/hls.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/style.css", (ctx, next) => {
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/style.css`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/icon.png", (ctx, next) => {
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.full.png`);
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.full.png`);
     ctx.type = "image/png";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/favicon.ico", (ctx, next) => {
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.ico`);
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.ico`);
     ctx.type = "image/x-icon";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/", (ctx, next) => {
     const page = ctx.params.page;
     console.log(`GET /${page}`);
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/index.html`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/script.js", (ctx, next) => {
     const page = ctx.params.page;
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/script.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/style.css", (ctx, next) => {
     const page = ctx.params.page;
-    if (!pageCache[ctx.path]) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/style.css`, "utf8");
+    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
@@ -123,6 +124,7 @@ router.get("/anime/:id/cover.jpg", async (ctx, next) => {
 router.get("/anime/:id/:ep/index.m3u8", async (ctx, next) => {
     const id = ctx.params.id,
         ep = ctx.params.ep;
+    player.updateState(id, ep, "picked");
     const file = await getPlaylist(id, ep);
     ctx.type = "application/x-mpegURL; charset=utf-8";
     ctx.body = file;
@@ -167,7 +169,7 @@ router.get("/history/:id/:ep", async (ctx, next) => {
 });
 router.get("/history/:id/", async (ctx, next) => {
     const id = ctx.params.id;
-    const data = await player.getHistory(id);
+    const data = (await player.getHistory(id)) || {};
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(data);
 });
@@ -176,6 +178,7 @@ router.post("/history/:id/:ep", async (ctx, next) => {
         ep = ctx.params.ep;
     const data = ctx.request.body;
     player.updateHistory(id, ep, data.time);
+    player.updateState(id, ep, "watching");
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify(data);
 });
@@ -196,6 +199,7 @@ router.get("/reload", async (ctx, next) => {
 router.get("/api/finished/:vid/:ep", async (ctx, next) => {
     const vid = ctx.params.vid,
         ep = ctx.params.ep;
+    player.updateState(vid, ep, "finished");
     const config = store.getConfig();
     if (config.autoRemove) {
         console.log(`Remove ${vid}-${ep} in ${5 + (+config.autoRemoveTime || 0)}s`);
@@ -209,8 +213,35 @@ router.get("/api/finished/:vid/:ep", async (ctx, next) => {
     ctx.type = "application/json; charset=utf-8";
     ctx.body = JSON.stringify({ success: true });
 });
+router.get("/api/del/:vid/:ep", async (ctx, next) => {
+    const vid = ctx.params.vid,
+        ep = ctx.params.ep;
+    console.log(`Removed ${vid}-${ep}`);
+    log(`Removed ${vid}-${ep}`);
+    store.removeVideo(vid, ep);
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify({ success: true });
+});
+router.get("/api/state", async (ctx, next) => {
+    const data = player.getAllState();
+    ctx.type = "application/json; charset=utf-8";
+    ctx.body = JSON.stringify(data);
+});
+router.get("/api/folder", async (ctx, next) => {
+    ctx.type = "application/json; charset=utf-8";
+    if (ctx.request.header["user-agent"].includes("myselfbbs-desktop")) {
+        const dialog = require("electron").dialog;
+        const path = await dialog.showOpenDialog({
+            properties: ["openDirectory"],
+            title: "請選擇存放下載檔案的資料夾",
+            defaultPath: store.getConfig().storage,
+        });
+        ctx.body = JSON.stringify({ path: path.canceled ? "" : path.filePaths[0] });
+    } else ctx.body = JSON.stringify({ path: "", error: "不支援此方法" });
+});
 
 app.use(router.routes()).use(router.allowedMethods());
 
-app.listen(config.port || 14810);
-console.log("listening on port " + (config.port || 14810));
+const PORT = config.port || 14810;
+app.listen(PORT);
+console.log("listening on port " + PORT);

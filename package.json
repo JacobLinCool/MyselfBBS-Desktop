@@ -1,32 +1,35 @@
 {
     "name": "myselfbbs-desktop",
-    "version": "0.9.8",
+    "version": "1.0.0-pre.1",
     "description": "desktop",
     "main": "main.js",
     "scripts": {
         "start": "electron-forge start",
+        "prepare": "npm audit fix",
         "package": "electron-forge package",
-        "make": "electron-forge make"
+        "make": "electron-forge make",
+        "format": "prettier --write main.js \"src/**/*.js\" \"page/**/*.js\""
     },
     "keywords": [],
     "author": "JacobLinCool",
     "license": "MIT",
     "devDependencies": {
-        "@electron-forge/cli": "^6.0.0-beta.59",
-        "@electron-forge/maker-deb": "^6.0.0-beta.59",
-        "@electron-forge/maker-rpm": "^6.0.0-beta.59",
-        "@electron-forge/maker-squirrel": "^6.0.0-beta.59",
-        "@electron-forge/maker-zip": "^6.0.0-beta.59",
-        "@electron-forge/publisher-github": "^6.0.0-beta.59",
-        "electron": "^13.2.2"
+        "@electron-forge/cli": "^6.0.0-beta.61",
+        "@electron-forge/maker-deb": "^6.0.0-beta.61",
+        "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+        "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+        "@electron-forge/maker-zip": "^6.0.0-beta.61",
+        "@electron-forge/publisher-github": "^6.0.0-beta.61",
+        "electron": "^15.1.0",
+        "prettier": "^2.4.1"
     },
     "dependencies": {
         "electron-squirrel-startup": "^1.0.0",
         "fuse.js": "^6.4.6",
-        "koa": "^2.13.1",
+        "koa": "^2.13.3",
         "koa-body": "^4.2.0",
         "koa-router": "^10.1.1",
-        "node-fetch": "^2.6.1"
+        "node-fetch": "^2.6.5"
     },
     "config": {
         "forge": {

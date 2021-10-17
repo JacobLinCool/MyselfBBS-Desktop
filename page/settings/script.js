@@ -3,6 +3,7 @@ getConfig();
 document.querySelector("#save").addEventListener("click", saveConfig);
 document.querySelector("#reset").addEventListener("click", reset);
 document.querySelector("#reload").addEventListener("click", reload);
+document.querySelector("#storage-select").addEventListener("click", getFolder);
 
 async function getConfig() {
     const config = await fetch("/config.json").then((r) => r.json());
@@ -42,4 +43,10 @@ async function reload() {
     document.querySelector("#reload").disabled = true;
     await fetch("/reload");
     document.querySelector("#reload").disabled = false;
+}
+
+async function getFolder() {
+    const { path, error } = await fetch("/api/folder").then((r) => r.json());
+    if (path) document.querySelector("#storage").value = path;
+    if (error) alert(error);
 }

@@ -58,7 +58,7 @@ select {
     margin: 6px 0 10px;
 }
 
-input[type='checkbox'] {
+input[type="checkbox"] {
     width: 28px;
 }
 
@@ -68,12 +68,88 @@ select {
 }
 
 button {
-    background: transparent;
+    background: rgba(255, 255, 255, 0);
     color: rgb(228, 228, 228);
     border: rgb(228, 228, 228) 1px solid;
     border-radius: 8px;
     font-size: 22px;
-    padding: 4px 8px;
+    padding: 6px 12px;
     margin: 0 8px 0 0;
     cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle {
+    width: 45px;
+    height: 30px;
+    border-radius: 75px;
+    background-color: #ddd;
+    overflow: hidden;
+    box-shadow: inset 0 0 1.5px 0.75px rgb(0 0 0 / 5%);
+    margin: 8px 0;
+}
+
+.toggle > input[type="checkbox"] {
+    position: absolute;
+    display: block;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 6;
+}
+
+.toggle > input[type="checkbox"]:checked ~ .track {
+    box-shadow: inset 0 0 0 15px #0ebeff;
+}
+
+.toggle > input[type="checkbox"]:checked ~ .switch {
+    right: 1.5px;
+    left: 16.5px;
+    transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition-property: left, right;
+    transition-delay: 0.03s, 0s;
+}
+
+.switch {
+    position: absolute;
+    left: 1.5px;
+    top: 1.5px;
+    bottom: 1.5px;
+    right: 16.5px;
+    background-color: #fff;
+    border-radius: 27px;
+    z-index: 1;
+    transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition-property: left, right;
+    transition-delay: 0s, 0.03s;
+    box-shadow: 0 0.75px 1.5px rgba(0, 0, 0, 0.2);
+}
+
+.track {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.05);
+    border-radius: 30px;
+}
+
+#storage {
+    border-radius: 8px 0 0 8px;
+}
+
+#storage-select {
+    border-radius: 0 8px 8px 0;
+    width: 100px;
+    padding: 8px 6px;
+    margin: 6px 0 10px;
 }

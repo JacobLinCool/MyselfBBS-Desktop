@@ -13,7 +13,7 @@ async function list() {
                 ${anime.title}
             </div>
         </div>
-    `
+    `,
         )
         .join("");
     document.querySelector("#grid").innerHTML = html;

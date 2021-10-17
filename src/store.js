@@ -12,6 +12,28 @@ checkDirExists(dirPath);
 
 let details = [];
 const COVER = {};
+const fuseOptions = {
+    includeScore: true,
+    keys: [
+        {
+            name: "title",
+            weight: 1,
+        },
+        {
+            name: "author",
+            weight: 0.9,
+        },
+        {
+            name: "category",
+            weight: 0.5,
+        },
+        {
+            name: "description",
+            weight: 0.2,
+        },
+    ],
+};
+let fuseCache;
 
 function checkDirExists(path) {
     if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
@@ -49,8 +71,6 @@ function getMyList() {
 }
 
 function createMyList() {
-    const storage = getConfig().storage;
-    const path = storage + "/mylist.json";
     const mylist = {};
     updateMyList(mylist);
 }
@@ -97,6 +117,7 @@ async function fetchAnimeDetails() {
     const data = await fetch("https://github.com/JacobLinCool/Myself-BBS-API/raw/data/details.json").then((res) => res.json());
     fs.writeFileSync(path, JSON.stringify({ meta: { time: Date.now() }, data }));
     details = data;
+    fuseCache = new Fuse(details, fuseOptions);
 }
 
 async function getAnimeInfo(id) {
@@ -129,32 +150,8 @@ async function getVideo(id, ep, file) {
 async function searchAnime(query) {
     if (details.length === 0) await fetchAnimeDetails();
     const startTime = performance.now();
-    const animes = JSON.parse(JSON.stringify(details));
 
-    const options = {
-        includeScore: true,
-        keys: [
-            {
-                name: "title",
-                weight: 1,
-            },
-            {
-                name: "author",
-                weight: 0.9,
-            },
-            {
-                name: "category",
-                weight: 0.5,
-            },
-            {
-                name: "description",
-                weight: 0.2,
-            },
-        ],
-    };
-
-    const fuse = new Fuse(animes, options);
-    const result = fuse.search(query);
+    const result = fuseCache.search(query);
 
     const endTime = performance.now();
     console.log(`Searching anime "${query}" took ${(endTime - startTime).toFixed(2)}ms`);
@@ -206,6 +203,7 @@ async function removeVideo(id, ep) {
     const storage = getConfig().storage;
     const path = `${storage}/video/${id}/${ep}/`;
     if (fs.existsSync(path)) fs.rmdirSync(path, { recursive: true });
+    if (!fs.readdirSync(`${storage}/video/${id}/`).length) fs.rmdirSync(`${storage}/video/${id}/`);
 }
 
 exports.getConfig = getConfig;

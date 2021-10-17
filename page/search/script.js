@@ -46,7 +46,7 @@ async function search() {
                 ${anime.title}
             </div>
         </div>
-    `
+    `,
         )
         .join("");
     document.querySelector("#grid").innerHTML = html;

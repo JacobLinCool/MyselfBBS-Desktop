@@ -10,7 +10,7 @@ document.querySelector("#interactive").addEventListener(
         await new Promise((resolve) => setTimeout(resolve, 200));
         document.querySelector("#interactive").style.display = "none";
     },
-    { once: true }
+    { once: true },
 );
 
 load();
@@ -153,7 +153,7 @@ function openPlayer(url) {
                     console.log(err.message);
                 }
             },
-            { once: true }
+            { once: true },
         );
     })();
 

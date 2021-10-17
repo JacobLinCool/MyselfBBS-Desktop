@@ -6,6 +6,11 @@ list();
 // setInterval(async () => {
 //     update();
 // }, 5000);
+document.querySelector("#update").addEventListener("click", async () => {
+    document.querySelector("#update").style.transform = "skew(-10deg) translateY(10px) scaleY(0)";
+    await update();
+    document.querySelector("#update").style.transform = "";
+});
 
 async function list() {
     updating = true;
@@ -39,12 +44,12 @@ async function list() {
                             }
                         })()}
                     </div>
-                `
+                `,
                     )
                     .join("")}
             </div>
         </div>
-    `
+    `,
         )
         .join("");
     document.querySelector("#list").innerHTML = html;
@@ -84,7 +89,7 @@ async function update() {
                     }
                 })()}
             </div>
-        `
+        `,
                 )
                 .join("");
         }

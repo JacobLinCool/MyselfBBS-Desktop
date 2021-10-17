@@ -32,6 +32,21 @@ body {
     user-select: none;
 }
 
+#update {
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transform: skew(0deg);
+    transform-origin: left;
+    transition: all 0.3s;
+}
+
+#update:hover {
+    opacity: 1;
+    transform: skew(-10deg);
+}
+
 #list {
     display: flex;
     flex-direction: column;

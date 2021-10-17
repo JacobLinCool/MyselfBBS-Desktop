@@ -106,14 +106,14 @@ async function download(vid, ep) {
                                         speedScored[idx].score += 1;
                                         return r;
                                     } else await new Promise((r) => setTimeout(r, 60 * 1000));
-                                })()
+                                })(),
                             );
                         });
                         const buffer = await Promise.race(race);
                         const path = `${storage}/video/${vid}/${ep}/${file}`;
                         if (!fs.existsSync(path)) fs.writeFileSync(path, buffer);
                     }
-                })()
+                })(),
             );
         }
         await Promise.all(racingParallel);

@@ -11,7 +11,11 @@
             <h2 id="title">設定</h2>
             <div id="container">
                 <label>檔案位置</label><br />
-                <input id="storage" /><br />
+                <div style="display: flex">
+                    <input id="storage" />
+                    <button id="storage-select">選擇</button>
+                </div>
+                <br />
                 <label>Port (下次啟動生效)</label><br />
                 <input id="port" /><br />
                 <label>字體 (重新載入生效)</label><br />
@@ -25,7 +29,11 @@
                     <option value="NaikaiFont-Regular-Lite">NaikaiFont</option></select
                 ><br />
                 <label>自動移除 (測試功能)</label><br />
-                <input id="autoRemove" type="checkbox" /><br />
+                <div class="toggle">
+                    <input id="autoRemove" type="checkbox" /><br />
+                    <b class="b switch"></b>
+                    <b class="b track"></b>
+                </div>
                 <label>觀看超過結束前幾秒要自動移除? (測試功能)</label><br />
                 <input id="autoRemoveTime" type="number" /><br />
                 <label>FVL (測試功能, 降低可以加快初始載入速度但較易卡頓)</label><br />
