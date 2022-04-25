@@ -38,7 +38,10 @@ async function list() {
                             if (dl && dl.downloaded === dl.total) {
                                 return `<span class="downloaded">${name}: 已完整下載</span>`;
                             } else if (dl) {
-                                return `<span class="started">${name}: 已下載 ${((dl.downloaded / dl.total) * 100).toFixed(0)}%</span>`;
+                                return `<span class="started">${name}: 已下載 ${(
+                                    (dl.downloaded / dl.total) *
+                                    100
+                                ).toFixed(0)}%</span>`;
                             } else {
                                 return `<span class="nothing">${name}: 尚未下載</span>`;
                             }
@@ -83,7 +86,10 @@ async function update() {
                     if (dl && dl.downloaded === dl.total) {
                         return `<span class="downloaded">${name}: 已完整下載</span>`;
                     } else if (dl) {
-                        return `<span class="started">${name}: 已下載 ${((dl.downloaded / dl.total) * 100).toFixed(0)}%</span>`;
+                        return `<span class="started">${name}: 已下載 ${(
+                            (dl.downloaded / dl.total) *
+                            100
+                        ).toFixed(0)}%</span>`;
                     } else {
                         return `<span class="nothing">${name}: 尚未下載</span>`;
                     }

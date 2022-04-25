@@ -22,9 +22,12 @@ async function getInfo() {
     const premiere = document.createElement("li");
     premiere.innerHTML = "首播日期: ";
     if (!Array.isArray(data.premiere) || data.premiere.length <= 1) premiere.innerHTML += "未知";
-    else if (data.premiere.length === 2) premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月`;
-    else if (data.premiere.length === 3) premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月 ${data.premiere[2]} 日`;
-    else if (data.premiere.length === 4) premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月、${data.premiere[2]} 年 ${data.premiere[3]} 月`;
+    else if (data.premiere.length === 2)
+        premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月`;
+    else if (data.premiere.length === 3)
+        premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月 ${data.premiere[2]} 日`;
+    else if (data.premiere.length === 4)
+        premiere.innerHTML += `${data.premiere[0]} 年 ${data.premiere[1]} 月、${data.premiere[2]} 年 ${data.premiere[3]} 月`;
     else premiere.innerHTML += data.premiere.join(", ");
     list.appendChild(premiere);
     const myselfBBS = document.createElement("li");

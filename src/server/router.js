@@ -7,7 +7,8 @@ const { getPlaylist, getStatus } = require("../download");
 const router = new Router();
 
 const root = (() => {
-    if (platform === "win32") return __dirname.substr(0, __dirname.length - "src/server".length - 1);
+    if (platform === "win32")
+        return __dirname.substr(0, __dirname.length - "src/server".length - 1);
     else return __filename.substr(0, __filename.lastIndexOf("/") - "src/server".length - 1);
 })();
 console.log(root);

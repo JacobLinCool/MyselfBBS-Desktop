@@ -27,51 +27,60 @@ const pageCache = {};
 
 router.get("/", (ctx, next) => {
     console.log("GET /");
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/index.html`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/script.js", (ctx, next) => {
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/script.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/hls.js", (ctx, next) => {
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/hls.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/hls.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/style.css", (ctx, next) => {
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/style.css`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/icon.png", (ctx, next) => {
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.full.png`);
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.full.png`);
     ctx.type = "image/png";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/favicon.ico", (ctx, next) => {
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.ico`);
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}icon/MyselfBBS.ico`);
     ctx.type = "image/x-icon";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/", (ctx, next) => {
     const page = ctx.params.page;
     console.log(`GET /${page}`);
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/index.html`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/index.html`, "utf8");
     ctx.type = "text/html; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/script.js", (ctx, next) => {
     const page = ctx.params.page;
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/script.js`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/script.js`, "utf8");
     ctx.type = "application/javascript; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
 router.get("/:page/style.css", (ctx, next) => {
     const page = ctx.params.page;
-    if (!pageCache[ctx.path] || noCache) pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/style.css`, "utf8");
+    if (!pageCache[ctx.path] || noCache)
+        pageCache[ctx.path] = fs.readFileSync(`${root}page/${page}/style.css`, "utf8");
     ctx.type = "text/css; charset=utf-8";
     ctx.body = pageCache[ctx.path];
 });
@@ -185,7 +194,8 @@ router.post("/history/:id/:ep", async (ctx, next) => {
 
 router.get("/font.woff2", async (ctx, next) => {
     const filename = store.getConfig().font + ".woff2";
-    if (!pageCache[filename]) pageCache[filename] = fs.readFileSync(`${root}page/_FONTS/${filename}`);
+    if (!pageCache[filename])
+        pageCache[filename] = fs.readFileSync(`${root}page/_FONTS/${filename}`);
     ctx.type = "application/font-woff2";
     ctx.body = pageCache[filename];
 });

@@ -60,7 +60,20 @@ async function search() {
 }
 
 function randomSearchTip() {
-    const searchTips = ["想找什麼？", "今天想看什麼？", "小林家", "Vivy", "命運石之門", "Fate", "物語", "奇幻", "科幻", "冒險", "懸疑", "搞笑"];
+    const searchTips = [
+        "想找什麼？",
+        "今天想看什麼？",
+        "小林家",
+        "Vivy",
+        "命運石之門",
+        "Fate",
+        "物語",
+        "奇幻",
+        "科幻",
+        "冒險",
+        "懸疑",
+        "搞笑",
+    ];
     const random = Math.floor(Math.random() * searchTips.length);
     document.querySelector("#search").placeholder = searchTips[random];
 }

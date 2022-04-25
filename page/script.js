@@ -22,18 +22,36 @@ let pState = {
 };
 
 setInterval(() => {
-    if (!video.paused && video.currentTime > pState.startAt + 5 && video.dataset.vid && video.dataset.ep) {
+    if (
+        !video.paused &&
+        video.currentTime > pState.startAt + 5 &&
+        video.dataset.vid &&
+        video.dataset.ep
+    ) {
         fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ time: video.currentTime }),
         });
         if (pState.next && !pState.preload && video.currentTime > video.duration - 5 * 60) {
-            console.log(`Preload: ${video.dataset.vid} ${(+video.dataset.ep + 1).toString().padStart(3, "0")}`);
-            fetch(`/anime/${video.dataset.vid}/${(+video.dataset.ep + 1).toString().padStart(3, "0")}/index.m3u8`);
+            console.log(
+                `Preload: ${video.dataset.vid} ${(+video.dataset.ep + 1)
+                    .toString()
+                    .padStart(3, "0")}`,
+            );
+            fetch(
+                `/anime/${video.dataset.vid}/${(+video.dataset.ep + 1)
+                    .toString()
+                    .padStart(3, "0")}/index.m3u8`,
+            );
             pState.preload = true;
         }
-        if (pState.next && pState.preload && video.currentTime >= video.duration - (CONFIG.autoRemoveTime || 1) && !pState.finished) {
+        if (
+            pState.next &&
+            pState.preload &&
+            video.currentTime >= video.duration - (CONFIG.autoRemoveTime || 1) &&
+            !pState.finished
+        ) {
             fetch(`/api/finished/${video.dataset.vid}/${video.dataset.ep.padStart(3, "0")}`);
             pState.finished = true;
         }
@@ -103,14 +121,19 @@ function openPlayer(url) {
             playlist = await fetch(url)
                 .then((res) => res.text())
                 .catch((err) => null);
-            let status = (await fetch(`/downloading.json`).then((res) => res.json()))[vid + "-" + ep];
+            let status = (await fetch(`/downloading.json`).then((res) => res.json()))[
+                vid + "-" + ep
+            ];
             if (status) {
                 if (status.status == "started") notice.innerHTML = "準備中.";
                 else if (status.status == "sourced") notice.innerHTML = "準備中..";
                 else if (status.status == "listed") notice.innerHTML = "準備中...";
                 else {
                     notice.innerHTML = "下載中...";
-                    if (status.finished) notice.innerHTML += ` (${((status.finished / status.total) * 100).toFixed(1)}%)`;
+                    if (status.finished)
+                        notice.innerHTML += ` (${((status.finished / status.total) * 100).toFixed(
+                            1,
+                        )}%)`;
                 }
             }
         }
@@ -131,7 +154,9 @@ function openPlayer(url) {
 
         let time;
         try {
-            time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) => r.json());
+            time = await fetch(`/history/${video.dataset.vid}/${video.dataset.ep}`).then((r) =>
+                r.json(),
+            );
         } catch (err) {}
 
         video.addEventListener(

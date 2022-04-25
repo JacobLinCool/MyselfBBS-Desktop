@@ -11,7 +11,12 @@ async function getPlaylist(vid, ep) {
     const path = `${storage}/video/${vid}/${ep}/index.m3u8`;
     const key = `${vid}-${ep}`;
     download(vid, ep);
-    if (fs.existsSync(path) && downloading[key]?.status !== "listed" && downloading[key]?.status !== "downloading") return fs.readFileSync(path, "utf8");
+    if (
+        fs.existsSync(path) &&
+        downloading[key]?.status !== "listed" &&
+        downloading[key]?.status !== "downloading"
+    )
+        return fs.readFileSync(path, "utf8");
     return "";
 }
 
@@ -29,10 +34,12 @@ async function download(vid, ep) {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         console.log(`RemoteVID: ${remoteVid}, RemoteEP: ${remoteEp}`);
 
-        let source = await fetch(`https://v.myself-bbs.com/vpx/${remoteVid}/${remoteEp}/`).then((r) => {
-            if (r.status === 200) return r.json();
-            throw new Error(`get_source_failed_${r.status}: ${r.statusText}`);
-        });
+        let source = await fetch(`https://v.myself-bbs.com/vpx/${remoteVid}/${remoteEp}/`).then(
+            (r) => {
+                if (r.status === 200) return r.json();
+                throw new Error(`get_source_failed_${r.status}: ${r.statusText}`);
+            },
+        );
 
         const m3u8Path = source.video["720p"].split("/").splice(0, 2).join("/") + "/";
         let host = source.host.sort((a, b) => b.weight - a.weight).map((x) => x.host);
@@ -42,7 +49,9 @@ async function download(vid, ep) {
         let playlist;
         if (!fs.existsSync(`${dir}/index.m3u8`)) {
             console.log("Fetching index.m3u8");
-            const cached = await fetch(`https://myself-bbs.jacob.workers.dev/m3u8/${remoteVid}/${remoteEp}?min=1`).then((r) => r.json());
+            const cached = await fetch(
+                `https://myself-bbs.jacob.workers.dev/m3u8/${remoteVid}/${remoteEp}?min=1`,
+            ).then((r) => r.json());
             if (cached.data) {
                 console.log("Using Remote Cached Playlist");
                 playlist = cached.data;
@@ -127,7 +136,8 @@ async function download(vid, ep) {
         for (let i = 0; i < fileList.length && i < FVL; i++) queue.push(true);
         for (let i = FVL; i < fileList.length; i++) {
             const file = fileList[i];
-            if (!checkVideoExist(vid, ep, file)) queue.push(downloadVideo(vid, ep, file, host, m3u8Path, storage));
+            if (!checkVideoExist(vid, ep, file))
+                queue.push(downloadVideo(vid, ep, file, host, m3u8Path, storage));
         }
         console.log(`${queue.length} files to download`);
         downloading[vid + "-" + ep] = { status: "downloading", total: fileList.length };
@@ -142,7 +152,8 @@ async function download(vid, ep) {
                             if (checkVideoExist(vid, ep, fileList[i])) {
                                 clearInterval(interval);
                                 finished++;
-                                downloading[vid + "-" + ep].finished = fileList.length - queue.length + finished;
+                                downloading[vid + "-" + ep].finished =
+                                    fileList.length - queue.length + finished;
                                 r();
                             }
                         }, 500);
@@ -150,7 +161,11 @@ async function download(vid, ep) {
                 });
             }
         }
-        downloading[vid + "-" + ep] = { status: "first-view", total: fileList.length, finished: fileList.length - queue.length + finished };
+        downloading[vid + "-" + ep] = {
+            status: "first-view",
+            total: fileList.length,
+            finished: fileList.length - queue.length + finished,
+        };
 
         const waitingEndTime = performance.now();
         console.log(`Waiting ${vid}-${ep}: ${(waitingEndTime - waitingStartTime).toFixed(2)}ms`);

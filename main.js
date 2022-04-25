@@ -2,10 +2,17 @@ const path = require("path");
 const { app, BrowserWindow } = require("electron");
 const { log, error } = require("./src/log");
 require("./src/server");
-const { getConfig, fetchAiringList, fetchCompletedList, fetchAnimeDetails } = require("./src/store");
+const {
+    getConfig,
+    fetchAiringList,
+    fetchCompletedList,
+    fetchAnimeDetails,
+} = require("./src/store");
 const { platform } = require("process");
 
-if (require("electron-squirrel-startup")) return app.quit();
+if (require("electron-squirrel-startup")) {
+    app.quit();
+}
 
 if (platform === "win32") app.setUserTasks([]);
 

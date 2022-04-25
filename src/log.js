@@ -18,7 +18,10 @@ async function log(...msg) {
         M += " ";
     });
     const d = new Date();
-    const t = `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
+    const t = `${d.getHours().toString().padStart(2, "0")}:${d
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
     logStream.write(`${t} ${M}\n`, "UTF8");
 }
 
@@ -31,7 +34,10 @@ async function error(...msg) {
         M += " ";
     });
     const d = new Date();
-    const t = `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
+    const t = `${d.getHours().toString().padStart(2, "0")}:${d
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
     errorStream.write(`${t} ${M}\n`, "UTF8");
 }
 

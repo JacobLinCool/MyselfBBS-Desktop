@@ -92,7 +92,9 @@ async function getCompletedList() {
 async function fetchCompletedList() {
     const storage = getConfig().storage;
     const path = storage + "/completed.json";
-    const { data } = await fetch("https://myself-bbs.jacob.workers.dev/list/completed").then((res) => res.json());
+    const { data } = await fetch("https://myself-bbs.jacob.workers.dev/list/completed").then(
+        (res) => res.json(),
+    );
     fs.writeFileSync(path, JSON.stringify(data));
 }
 
@@ -107,14 +109,18 @@ async function getAiringList() {
 async function fetchAiringList() {
     const storage = getConfig().storage;
     const path = storage + "/airing.json";
-    const { data } = await fetch("https://myself-bbs.jacob.workers.dev/list/airing").then((res) => res.json());
+    const { data } = await fetch("https://myself-bbs.jacob.workers.dev/list/airing").then((res) =>
+        res.json(),
+    );
     fs.writeFileSync(path, JSON.stringify(data));
 }
 
 async function fetchAnimeDetails() {
     const storage = getConfig().storage;
     const path = storage + "/details.json";
-    const data = await fetch("https://github.com/JacobLinCool/Myself-BBS-API/raw/data/details.json").then((res) => res.json());
+    const data = await fetch(
+        "https://github.com/JacobLinCool/Myself-BBS-API/raw/data/details.json",
+    ).then((res) => res.json());
     fs.writeFileSync(path, JSON.stringify({ meta: { time: Date.now() }, data }));
     details = data;
     fuseCache = new Fuse(details, fuseOptions);
@@ -192,7 +198,9 @@ async function getSprite(id, ep) {
     const path = storage + "/sprite/" + id + "/" + ep + ".png";
     checkDirExists(storage + "/sprite/" + id + "/");
     if (!fs.existsSync(path)) {
-        const list = await fetch(`https://v.myself-bbs.com/vpx/${id}/${ep}/`).then((res) => res.json());
+        const list = await fetch(`https://v.myself-bbs.com/vpx/${id}/${ep}/`).then((res) =>
+            res.json(),
+        );
         const buffer = await fetch(list.vtt).then((res) => res.buffer());
         fs.writeFileSync(path, buffer);
     }
