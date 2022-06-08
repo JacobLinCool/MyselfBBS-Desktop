@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: windows-app
-          path: out/**/*.exe
+          path: out/make/squirrel.windows/x64/*Setup.exe
 
   release:
     name: Release
