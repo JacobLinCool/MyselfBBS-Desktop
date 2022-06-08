@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: windows-app
-          path: out/make/*.exe
+          path: out/**/*.exe
 
   release:
     name: Release
