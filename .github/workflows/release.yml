@@ -50,13 +50,14 @@ jobs:
           name: windows-app
           path: out/make/*.exe
 
-
   release:
     name: Release
     runs-on: ubuntu-latest
     needs:
       - build_macos
       - build_windows
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -68,7 +69,7 @@ jobs:
         with:
           name: macos-app
           path: macos-app
-      
+
       - name: Download Windows App
         uses: actions/download-artifact@v3
         with:
