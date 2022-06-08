@@ -1,9 +1,17 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { BrowserWindow, app } from "electron";
 import electronReload from "electron-reload";
+import fixPath from "fix-path";
 import fetch from "node-fetch";
 import { config } from "./config";
+
+const logstream = fs.createWriteStream(path.join(app.getPath("userData"), "log.txt"), {
+    flags: "a",
+});
+
+fixPath();
 
 if (require("electron-squirrel-startup")) {
     app.quit();
@@ -34,7 +42,7 @@ async function app_start() {
         app.setUserTasks([]);
     }
 
-    create_window();
+    setTimeout(() => create_window(), 1000);
 
     console.timeEnd("App Start");
 }
@@ -67,6 +75,7 @@ function launch_backend() {
         ];
 
         console.log({ args });
+        logstream.write(JSON.stringify({ args }, null, 4) + "\n");
 
         const backend = spawn(
             `node ${path.resolve(__dirname, "..", "backend", "run.js")} ${args.join(" ")}`,
@@ -75,10 +84,12 @@ function launch_backend() {
 
         backend.stdout.on("data", (data) => {
             process.stdout.write(`[Backend] ${data}`);
+            logstream.write(`[Backend] ${data}`);
         });
 
         backend.stderr.on("data", (data) => {
             process.stderr.write(`[Backend] ${data}`);
+            logstream.write(`[Backend] ${data}`);
         });
 
         let dont_restart = false;
