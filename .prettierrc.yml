@@ -9,8 +9,6 @@ overrides:
     - files: "**/*.md"
       options:
           tabWidth: 2
-plugins:
-    - "./node_modules/@trivago/prettier-plugin-sort-imports/lib/src/index.js"
 
 # sort-imports plugin
 importOrder:
