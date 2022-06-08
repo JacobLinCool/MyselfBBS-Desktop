@@ -6,7 +6,7 @@
     "main": "dist/app/index.js",
     "scripts": {
         "start": "cross-env DEV=true concurrently 'vite' 'tsc -w' 'electron-forge start'",
-        "build": "vue-tsc --noEmit && vite build && tsc && electron-forge make",
+        "build": "vite build && tsc && electron-forge make",
         "package": "electron-forge package",
         "publish": "electron-forge publish",
         "lint": "eslint --ext .ts .",
