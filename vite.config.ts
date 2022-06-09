@@ -18,6 +18,7 @@ export default defineConfig({
     build: {
         outDir: "../../dist/frontend",
         emptyOutDir: true,
+        chunkSizeWarningLimit: 1000,
     },
     server: {
         port: 14811,
