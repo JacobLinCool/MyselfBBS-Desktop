@@ -28,3 +28,7 @@ const proxy = new Proxy(config, {
 console.log("config", proxy);
 
 export default proxy;
+
+export const default_endpoint = `${window.location.protocol}//${window.location.hostname}:${
+    window.location.search.toLowerCase().includes("dev") ? 29621 : 29620
+}`;
