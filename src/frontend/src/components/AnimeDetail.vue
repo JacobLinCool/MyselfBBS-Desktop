@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { spacing } from "pangu";
 import { Ref, inject, onBeforeUnmount, onMounted, reactive } from "vue";
 import { get, post, store } from "../composables/api";
 import config from "../config";
@@ -126,7 +127,7 @@ onBeforeUnmount(() => {
                         />
                     </div>
                     <div class="flex-1 p-[25px]">
-                        <p class="mb-4">{{ info.description }}</p>
+                        <p class="mb-4">{{ spacing(info.description) }}</p>
                         <ul>
                             <li>作品類型： {{ info.category.join(" / ") }}</li>
                             <li>原著作者： {{ info.author }}</li>
