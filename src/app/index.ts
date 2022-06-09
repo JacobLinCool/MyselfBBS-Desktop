@@ -51,7 +51,7 @@ async function app_start() {
         app.setUserTasks([]);
     }
 
-    setTimeout(() => create_window(), 1000);
+    setTimeout(() => create_window(), 100);
 
     console.timeEnd("App Start");
 }
