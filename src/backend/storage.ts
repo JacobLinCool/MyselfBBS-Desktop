@@ -377,7 +377,7 @@ export class Storage extends EventEmitter {
             fs.rmdirSync(path.join(dir, ep), { recursive: true });
         }
 
-        if (fs.readdirSync(dir).length === 0) {
+        if (fs.readdirSync(dir).filter((x) => !x.startsWith(".")).length === 0) {
             fs.rmdirSync(dir, { recursive: true });
         }
     }
