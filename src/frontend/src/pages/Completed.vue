@@ -2,6 +2,7 @@
 import { reactive } from "vue";
 import AnimeList from "../components/AnimeList.vue";
 import Fade from "../components/Fade.vue";
+import { store } from "../composables/api";
 import { Anime } from "../types";
 
 const list: Anime[] = reactive([]);
@@ -9,7 +10,7 @@ const list: Anime[] = reactive([]);
 get_list();
 
 async function get_list() {
-    const res = await fetch("/api/store/completed");
+    const res = await store("completed");
     const data = await res.json();
     list.splice(0, list.length, ...data);
 }

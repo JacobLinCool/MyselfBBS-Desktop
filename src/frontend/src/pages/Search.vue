@@ -2,6 +2,7 @@
 import { reactive, ref } from "vue";
 import AnimeList from "../components/AnimeList.vue";
 import Fade from "../components/Fade.vue";
+import { store, util } from "../composables/api";
 import { Anime } from "../types";
 
 const query = ref("");
@@ -18,7 +19,7 @@ async function search() {
     }
     searching.value = true;
 
-    const res = await fetch("/api/store/search?q=" + query.value);
+    const res = await store("search", { q: query.value });
     const data = await res.json();
     list.splice(0, list.length, ...data);
 
@@ -26,7 +27,7 @@ async function search() {
 }
 
 async function update_suggestion() {
-    const res = await fetch("/api/util/suggestion");
+    const res = await util("suggestion");
     const data = await res.json();
     suggestion.value = data.suggestion;
 }

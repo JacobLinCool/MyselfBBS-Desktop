@@ -20,12 +20,7 @@ export default defineConfig({
         emptyOutDir: true,
     },
     server: {
-        port: 14812,
+        port: 14811,
         strictPort: true,
-        proxy: {
-            "/api": "http://localhost:14811",
-            "/system": "http://localhost:14811",
-            "/alive": "http://localhost:14811",
-        },
     },
 });

@@ -9,13 +9,7 @@ const program = new Command();
 program
     .name("myselfbbs-desktop-backend")
     .description("Backend server for myselfbbs-desktop")
-    .option("-p, --port <port>", "Port to serve on", (val) => parseInt(val), 14810)
-    .option(
-        "-d, --dir <dir>",
-        "Frontend directory to serve",
-        (val) => path.resolve(val),
-        path.resolve(__dirname, "..", "frontend"),
-    )
+    .option("-p, --port <port>", "Port to serve on", (val) => parseInt(val), 29620)
     .option(
         "-s, --storage <path>",
         "Path to storage directory",
@@ -24,6 +18,7 @@ program
     )
     .action(() => {
         const options = program.opts() as Config;
+        console.log("options", options);
         start_server(options);
     });
 

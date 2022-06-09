@@ -20,13 +20,49 @@ export function start_server(config: Config) {
         suggestions.push(...Array.from(s));
     });
 
-    const app = express();
-    app.use(express.json());
-    app.use((req, res, next) => {
-        console.log(`${req.method} ${req.url}`, req.body);
-        next();
+    const app = express()
+        .use(express.json())
+        .use((req, res, next) => {
+            console.log(`${req.method} ${req.url}`, req.body);
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept",
+            );
+            res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            res.header("Access-Control-Allow-Credentials", "true");
+            next();
+        });
+
+    const system = express.Router();
+    system.get("/", async (req, res) => {
+        res.json({ msg: "OK" });
     });
-    app.use(express.static(config.dir));
+    system.post("/", async (req, res) => {
+        await store.initialized;
+
+        if (req.body.action === "update") {
+            await store.update();
+            res.json({ ok: true });
+        } else if (req.body.action === "stop") {
+            setTimeout(() => process.exit(222), 1000);
+            res.json({ ok: true });
+        } else {
+            res.status(404).send("Not found");
+        }
+    });
+    system.get("/ready", async (req, res) => {
+        while ((await store.initialized) === false) {
+            await sleep(100);
+        }
+        res.json({ ok: true });
+    });
+
+    app.use("/system", system);
+
+    app.use("/alive", async (req, res) => {
+        res.json({ ok: true });
+    });
 
     const api = express.Router();
 
@@ -144,37 +180,7 @@ export function start_server(config: Config) {
         }
     });
 
-    app.use("/api", api);
-
-    const system = express.Router();
-    system.get("/", async (req, res) => {
-        res.json({ msg: "OK" });
-    });
-    system.post("/", async (req, res) => {
-        await store.initialized;
-
-        if (req.body.action === "update") {
-            await store.update();
-            res.json({ ok: true });
-        } else if (req.body.action === "stop") {
-            setTimeout(() => process.exit(222), 1000);
-            res.json({ ok: true });
-        } else {
-            res.status(404).send("Not found");
-        }
-    });
-    system.get("/ready", async (req, res) => {
-        while ((await store.initialized) === false) {
-            await sleep(100);
-        }
-        res.json({ ok: true });
-    });
-
-    app.use("/system", system);
-
-    app.use("/alive", async (req, res) => {
-        res.json({ ok: true });
-    });
+    app.use("/", api);
 
     app.listen(config.port, () => {
         console.log("Backend Server is running on port " + config.port, config);

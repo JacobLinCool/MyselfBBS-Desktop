@@ -1,27 +1,23 @@
-import { spawn } from "node:child_process";
+import { fork } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { BrowserWindow, app } from "electron";
 import electronReload from "electron-reload";
+import express from "express";
 import fixPath from "fix-path";
 import fetch from "node-fetch";
 import { config } from "./config";
+import { Logger } from "./logger";
 
-const logstream = fs.createWriteStream(path.join(app.getPath("userData"), "log.txt"), {
-    flags: "a",
-});
+console.time("App Start");
 
 fixPath();
 
-if (require("electron-squirrel-startup")) {
-    app.quit();
-}
+const logger = setup_logger();
 
 if (process.env.DEV) {
     electronReload(__dirname, {});
 }
-
-console.time("App Start");
 
 app.on("ready", () => app_start())
     .on("activate", () => {
@@ -32,10 +28,23 @@ app.on("ready", () => app_start())
     .on("window-all-closed", () => {
         if (process.platform !== "darwin") {
             app.quit();
+            logger.log("App Quitted");
         }
     });
 
 async function app_start() {
+    if (require("electron-squirrel-startup")) {
+        app.quit();
+    }
+
+    logger.log("App Started");
+
+    if (!process.env.DEV) {
+        express()
+            .use(express.static(path.join(__dirname, "..", "frontend")))
+            .listen(config["port"]);
+    }
+
     launch_backend();
 
     if (process.platform === "win32") {
@@ -54,7 +63,11 @@ function create_window() {
         frame: process.platform !== "win32",
     });
     win.setThumbarButtons([]);
-    win.loadURL("http://localhost:" + (process.env.DEV ? 14812 : config.get("port")));
+    if (!process.env.DEV) {
+        win.loadURL("http://localhost:" + config["port"]);
+    } else {
+        win.loadURL("http://localhost:14811/?dev=1");
+    }
     win.maximize();
 
     if (process.env.DEV) {
@@ -64,39 +77,44 @@ function create_window() {
     win.setThumbarButtons([]);
 }
 
+// #region Backend Manager
+let restart_counter = 0;
 function launch_backend() {
+    if (restart_counter > 10) {
+        logger.err("Restart counter exceeded, exiting");
+        process.exit(1);
+    }
+    restart_counter++;
+
     try {
         const args = [
-            `--port ${process.env.DEV ? 14811 : config.get("port")}`,
-            `--dir "${path.resolve(__dirname, "..", "frontend")}"`,
-            `--storage "${
-                config.get("storage") || path.resolve(app.getPath("userData"), "storage")
-            }"`,
+            `--port`,
+            `${process.env.DEV ? 29621 : 29620}`,
+            `--storage`,
+            `${config["storage"] || path.resolve(app.getPath("userData"), "storage")}`,
         ];
 
-        console.log({ args });
-        logstream.write(JSON.stringify({ args }, null, 4) + "\n");
+        logger.log(`Launching backend with arg: ${args}`);
 
-        const backend = spawn(
-            `node ${path.resolve(__dirname, "..", "backend", "run.js")} ${args.join(" ")}`,
-            { shell: true },
-        );
+        const backend = fork(path.resolve(__dirname, "..", "backend", "run.js"), args, {
+            silent: true,
+            env: { ELECTRON_RUN_AS_NODE: "1" },
+        });
 
         backend.stdout.on("data", (data) => {
-            process.stdout.write(`[Backend] ${data}`);
-            logstream.write(`[Backend] ${data}`);
+            logger.log(`[Backend] ${data}`.trim());
         });
 
         backend.stderr.on("data", (data) => {
-            process.stderr.write(`[Backend] ${data}`);
-            logstream.write(`[Backend] ${data}`);
+            logger.err(`[Backend] ${data}`.trim());
         });
 
         let dont_restart = false;
+
         const controller = new AbortController();
         const heartbeat = setInterval(() => {
             let alive = false;
-            fetch("http://localhost:" + (process.env.DEV ? 14811 : config.get("port")) + "/alive", {
+            fetch("http://localhost:" + (process.env.DEV ? 29621 : 29620) + "/alive", {
                 signal: controller.signal,
             })
                 .then((res) => {
@@ -104,13 +122,15 @@ function launch_backend() {
                         alive = true;
                     }
                 })
-                .catch((err) => {
+                .catch(async (err) => {
                     if (err.name === "AbortError" && dont_restart === false) {
-                        console.error("Backend died unexpectedly. :(");
+                        dont_restart = true;
+                        logger.err("Backend timed out.");
                         backend.kill();
                         clearInterval(heartbeat);
 
-                        console.log("Restarting backend...");
+                        await new Promise((r) => setTimeout(r, 100));
+                        logger.log("Restarting backend...");
                         launch_backend();
                     }
                 });
@@ -122,19 +142,45 @@ function launch_backend() {
             }, 30_000);
         }, 30_000);
 
-        backend.on("exit", (code) => {
+        backend.on("exit", async (code) => {
             clearInterval(heartbeat);
-            if (code !== 222) {
-                dont_restart = true;
-                process.exit(code);
-            }
+            logger.log(`Backend exited with code ${code}`);
             if (dont_restart === false) {
-                console.log("Restarting backend...");
+                dont_restart = true;
+                backend.kill();
+
+                await new Promise((r) => setTimeout(r, 100));
+                logger.log("Restarting backend...");
                 launch_backend();
             }
         });
+
+        process.on("exit", () => {
+            dont_restart = true;
+            backend.kill();
+        });
     } catch (err) {
-        console.log(err);
+        logger.err(err);
         process.exit(1);
     }
+}
+
+setInterval(() => {
+    if (restart_counter > 0) {
+        restart_counter--;
+    }
+}, 30_000);
+// #endregion
+
+function setup_logger() {
+    const dir = path.join(app.getPath("userData"), "app-logs");
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    const logger = new Logger(
+        path.join(dir, `log-${Date.now()}.txt`),
+        path.join(dir, `err-${Date.now()}.txt`),
+    );
+    return logger;
 }

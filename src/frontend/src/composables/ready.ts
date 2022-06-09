@@ -1,4 +1,5 @@
 import { Ref } from "vue";
+import config from "../config";
 
 export async function check_ready(ready: Ref<boolean>): Promise<boolean> {
     if (ready.value) {
@@ -8,7 +9,7 @@ export async function check_ready(ready: Ref<boolean>): Promise<boolean> {
     try {
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 2000);
-        const res = await fetch("/system/ready", { signal: controller.signal });
+        const res = await fetch(config.backend + "/system/ready", { signal: controller.signal });
         if (res.ok) {
             ready.value = true;
             console.log("Server is ready.");

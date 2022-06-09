@@ -1,19 +1,14 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { post } from "../composables/api";
 import { check_ready } from "../composables/ready";
 
 const restarting = ref(false);
 const router = useRouter();
 
 async function system(body: Record<string, string>) {
-    return await fetch("/system", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-    });
+    return await post("system", body);
 }
 
 async function restart() {

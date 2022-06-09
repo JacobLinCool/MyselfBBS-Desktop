@@ -2,6 +2,8 @@
 import videojs, { VideoJsPlayer } from "video.js";
 import "videojs-sprite-thumbnails";
 import { Ref, inject, ref, watch } from "vue";
+import { get, post, store } from "../composables/api";
+import config from "../config";
 import { Anime } from "../types";
 
 const props = defineProps<{
@@ -50,11 +52,11 @@ watch(props, () => {
             preload: "auto",
             sources: [
                 {
-                    src: `/api/${props.vid}/${props.ep}/index.m3u8`,
+                    src: `${config.backend}/${props.vid}/${props.ep}/index.m3u8`,
                     type: "application/x-mpegURL",
                 },
             ],
-            poster: `/api/store/cover?id=${props.vid}`,
+            poster: `${config.backend}/store/cover?id=${props.vid}`,
             userActions: {
                 // @ts-ignore
                 hotkeys(event: KeyboardEvent) {
@@ -84,7 +86,7 @@ watch(props, () => {
         last_update = 0;
         anime.value = undefined;
 
-        fetch(`/api/${props.vid}/${props.ep}/status`)
+        get(`${props.vid}/${props.ep}/status`)
             .then((res) => res.json())
             .then((data) => {
                 if (
@@ -98,13 +100,13 @@ watch(props, () => {
                 }
             });
 
-        fetch(`/api/store/info?id=${props.vid}`)
+        store("info", { id: props.vid })
             .then((res) => res.json())
             .then((data) => (anime.value = data));
 
         // @ts-ignore
         video.spriteThumbnails({
-            url: `/api/${props.vid}/${props.ep}/sprite.jpg`,
+            url: `${config.backend}/${props.vid}/${props.ep}/sprite.jpg`,
             width: 192,
             height: 108,
         });
@@ -174,11 +176,7 @@ async function update() {
         const vid = props.vid,
             ep = props.ep;
 
-        const res = await fetch(`/api/${vid}/${ep}/watched`, {
-            method: "POST",
-            body: JSON.stringify({ watched: time }),
-            headers: { "Content-Type": "application/json" },
-        });
+        const res = await post(`${vid}/${ep}/watched`, { watched: time });
 
         if (res.ok) {
             console.log("update", time, await res.json());
@@ -199,7 +197,7 @@ async function preload_next() {
         const idx = eps.findIndex((x) => x[1] === props.ep);
 
         if (idx >= 0 && idx < eps.length - 1) {
-            fetch(`/api/${eps[idx + 1][0]}/${eps[idx + 1][1]}/index.m3u8`);
+            get(`${eps[idx + 1][0]}/${eps[idx + 1][1]}/index.m3u8`);
         }
     }
 }

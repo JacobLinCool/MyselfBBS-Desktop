@@ -25,6 +25,5 @@ export interface RawList {
 
 export interface Config {
     port: number;
-    dir: string;
     storage: string;
 }

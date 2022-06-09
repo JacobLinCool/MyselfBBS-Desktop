@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Ref, inject, onBeforeUnmount, onMounted, reactive } from "vue";
+import { get, post, store } from "../composables/api";
+import config from "../config";
 import { Anime } from "../types";
 import Fade from "./Fade.vue";
 
@@ -38,8 +40,8 @@ function close(payload: MouseEvent) {
 }
 
 async function get_data() {
-    const info_res = fetch(`/api/store/info?id=${props.id}`);
-    const status_res = fetch(`/api/store/status?id=${props.id}`);
+    const info_res = store("info", { id: props.id });
+    const status_res = store("status", { id: props.id });
 
     const info_data = await (await info_res).json();
     Object.assign(info, info_data);
@@ -64,19 +66,19 @@ function play(vid: string, ep: string) {
 function delete_file(vid: string, ep: string) {
     const comfirm = window.confirm("Are you sure you want to delete this file?");
     if (comfirm) {
-        fetch(`/api/${vid}/${ep}/delete`, { method: "POST" });
+        post(`${vid}/${ep}/delete`);
     }
 }
 
 function delete_history(vid: string, ep: string) {
     const comfirm = window.confirm("Are you sure you want to delete this history?");
     if (comfirm) {
-        fetch(`/api/${vid}/${ep}/unwatch`, { method: "POST" });
+        post(`${vid}/${ep}/unwatch`);
     }
 }
 
 function prepare(vid: string, ep: string) {
-    fetch(`/api/${vid}/${ep}/index.m3u8`);
+    get(`${vid}/${ep}/index.m3u8`);
 }
 
 function second_to_time(second: number): string {
@@ -118,7 +120,10 @@ onBeforeUnmount(() => {
                 <div class="text-lg sm:text-xl md:text-2xl">{{ info.title }}</div>
                 <div class="flex flex-col items-center sm:flex-row sm:items-start">
                     <div class="h-[400px] w-[300px] p-[25px]">
-                        <img :src="`/api/store/cover?id=${info.id}`" class="rounded-md" />
+                        <img
+                            :src="`${config.backend}/store/cover?id=${info.id}`"
+                            class="rounded-md"
+                        />
                     </div>
                     <div class="flex-1 p-[25px]">
                         <p class="mb-4">{{ info.description }}</p>

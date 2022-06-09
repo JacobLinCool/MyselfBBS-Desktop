@@ -2,6 +2,7 @@
 import { reactive } from "vue";
 import AnimeList from "../components/AnimeList.vue";
 import Fade from "../components/Fade.vue";
+import { util } from "../composables/api";
 import { Anime } from "../types";
 
 const recent: Anime[] = reactive([]);
@@ -10,8 +11,8 @@ const downloaded: Anime[] = reactive([]);
 get_list();
 
 async function get_list() {
-    const recent_res = fetch("/api/util/recent");
-    const downloaded_res = fetch("/api/util/downloaded");
+    const recent_res = util("recent");
+    const downloaded_res = util("downloaded");
 
     const recent_data = await (await recent_res).json();
     recent.splice(0, recent.length, ...recent_data.list);
@@ -66,4 +67,8 @@ async function get_list() {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+div::-webkit-scrollbar {
+    display: none;
+}
+</style>
