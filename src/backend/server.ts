@@ -23,15 +23,19 @@ export function start_server(config: Config) {
     const app = express()
         .use(express.json())
         .use((req, res, next) => {
-            console.log(`${req.method} ${req.url}`, req.body);
+            const start = Date.now();
+
             res.header("Access-Control-Allow-Origin", "*");
-            res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept",
-            );
+            res.header("Access-Control-Allow-Headers", "*");
             res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             res.header("Access-Control-Allow-Credentials", "true");
-            next();
+
+            res.on("finish", () => {
+                const duration = Date.now() - start;
+                console.log(`${req.method} ${req.url} ${res.statusCode} ${duration} ms`);
+            });
+
+            return next();
         });
 
     const system = express.Router();
