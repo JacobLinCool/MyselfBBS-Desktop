@@ -34,14 +34,7 @@ watch(props, () => {
     let elm: HTMLVideoElement | undefined;
     if (wrapper) {
         elm = document.createElement("video");
-        elm.classList.add(
-            "video-js",
-            "w-full",
-            "bg-gray-900",
-            "max-h-4/5",
-            "min-h-3/5",
-            "focus:outline-none",
-        );
+        elm.classList.add("video-js", "w-full", "max-h-4/5", "min-h-3/5", "focus:outline-none");
         wrapper.value?.appendChild(elm);
     }
 
