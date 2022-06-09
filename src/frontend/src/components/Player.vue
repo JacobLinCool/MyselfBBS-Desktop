@@ -143,6 +143,12 @@ watch(props, () => {
                     if (player_vid && player_ep) {
                         player_vid.value = eps[idx + 1][0];
                         player_ep.value = eps[idx + 1][1];
+
+                        if (video?.isFullscreen()) {
+                            setTimeout(() => {
+                                video?.requestFullscreen();
+                            }, 150);
+                        }
                     }
                 }
             }
