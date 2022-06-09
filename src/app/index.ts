@@ -62,7 +62,7 @@ function create_window() {
         height: 800,
         frame: process.platform !== "win32",
     });
-    win.setThumbarButtons([]);
+
     if (!process.env.DEV) {
         win.loadURL("http://localhost:" + config["port"]);
     } else {

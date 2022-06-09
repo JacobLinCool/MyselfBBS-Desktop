@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*
 
 jobs:
   build_macos:
@@ -13,14 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Yarn
-        run: npm i -g yarn
-
-      - name: Install Dependencies
-        run: yarn install
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: latest
+          run_install: true
 
       - name: Build App
-        run: yarn build
+        run: pnpm build
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
@@ -35,14 +36,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Yarn
-        run: npm i -g yarn
-
-      - name: Install Dependencies
-        run: yarn install
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: latest
+          run_install: true
 
       - name: Build App
-        run: yarn build
+        run: pnpm build
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
