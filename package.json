@@ -29,7 +29,8 @@
                     "name": "@electron-forge/maker-dmg",
                     "config": {
                         "format": "ULFO",
-                        "icon": "./icon/MyselfBBS.icns"
+                        "icon": "./icon/MyselfBBS.icns",
+                        "background": "./icon/dmg-bg.png"
                     }
                 },
                 {
