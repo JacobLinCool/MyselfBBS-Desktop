@@ -2,7 +2,7 @@
     "private": true,
     "name": "myselfbbs-desktop",
     "description": "Myself Desktop (Unofficial)",
-    "version": "1.0.0-pre.3",
+    "version": "1.0.0-pre.4",
     "main": "dist/app/index.js",
     "scripts": {
         "start": "cross-env DEV=true concurrently 'vite' 'tsc -w' 'electron-forge start'",
