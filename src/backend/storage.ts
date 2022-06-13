@@ -286,6 +286,7 @@ export class Storage extends EventEmitter {
                 return ts_files;
             })();
 
+            let delay_factor = 1;
             const speed_scores = hosts.map((host) => ({ host, score: 0 }));
             const get_file = async (file: string) => {
                 const filepath = path.join(dir, file);
@@ -303,7 +304,7 @@ export class Storage extends EventEmitter {
                     let done = false;
                     const tasks = controllers.map((controller, i) =>
                         (async () => {
-                            await sleep(i * 100);
+                            await sleep(i * 150 * delay_factor);
                             if (done) {
                                 return;
                             }
@@ -319,6 +320,7 @@ export class Storage extends EventEmitter {
                                 done = true;
                                 speed_scores.find((x) => x.host === controller.host).score++;
                                 speed_scores.sort((a, b) => b.score - a.score);
+                                delay_factor += 0.1;
                             }
 
                             return buffer;
