@@ -66,9 +66,3 @@ async function get_list() {
         </div>
     </div>
 </template>
-
-<style scoped>
-div::-webkit-scrollbar {
-    display: none;
-}
-</style>

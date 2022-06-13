@@ -102,4 +102,8 @@ body,
 .vjs-button > .vjs-icon-placeholder {
     top: -14px;
 }
+
+div::-webkit-scrollbar {
+    display: none;
+}
 </style>
