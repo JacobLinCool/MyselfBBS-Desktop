@@ -9,7 +9,10 @@ const items: [string, string][] = [
 </script>
 
 <template>
-    <div class="flex w-full items-center bg-slate-900 shadow-xl">
+    <div
+        class="flex w-full items-center bg-slate-900 shadow-xl"
+        style="-webkit-user-select: none; -webkit-app-region: drag"
+    >
         <div
             v-for="(item, index) in items"
             :key="index"
@@ -21,6 +24,7 @@ const items: [string, string][] = [
                 'duration-300',
                 $route.path === item[1] ? 'text-lg md:text-xl' : 'hover:text-lg md:hover:text-xl',
             ]"
+            style="-webkit-app-region: no-drag"
         >
             <router-link :to="item[1]" class="nav-link">
                 {{ item[0] }}
