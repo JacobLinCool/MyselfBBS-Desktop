@@ -55,3 +55,24 @@ For media files, HLS (`.m3u8`) is used because it has the ability to be extended
     ---------------
 
 ```
+
+### Development
+
+#### Tools
+
+1. Node.js 16+
+2. PNPM `npm i -g pnpm`
+
+#### Preparation
+
+1. Install dependencies `pnpm i`
+
+#### Dev Mode (Hot-Reload)
+
+`pnpm start`
+
+> This may not work properly on Windows.
+
+#### Build Application
+
+`pnpm build`
