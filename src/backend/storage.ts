@@ -6,7 +6,7 @@ import Fuse from "fuse.js";
 import fetch from "node-fetch";
 import { Pool } from "@jacoblincool/puddle";
 import { Anime, RawList } from "./types";
-import { sleep } from "./utils";
+import { retry, sleep } from "./utils";
 
 enum Status {
     started,
@@ -296,6 +296,10 @@ export class Storage extends EventEmitter {
                         return { host, controller, signal };
                     });
 
+                    setTimeout(() => {
+                        controllers.forEach(({ controller }) => controller.abort());
+                    }, 60_000);
+
                     let done = false;
                     const tasks = controllers.map((controller, i) =>
                         (async () => {
@@ -339,19 +343,21 @@ export class Storage extends EventEmitter {
                         resolver = resolve;
                     },
                 );
-                pool.push(async () => {
-                    await get_file(ts_files[i]);
-                    resolver(true);
-                    finished[i] = true;
-                    this.video_status[key].progress =
-                        finished.filter(Boolean).length / ts_files.length;
-                    console.log(
-                        `${key} ${ts_files[i]} ${finished.filter(Boolean).length}/${
-                            ts_files.length
-                        }`,
-                        speed_scores.slice(0, 3),
-                    );
-                });
+                pool.push(() =>
+                    retry(async () => {
+                        await get_file(ts_files[i]);
+                        resolver(true);
+                        finished[i] = true;
+                        this.video_status[key].progress =
+                            finished.filter(Boolean).length / ts_files.length;
+                        console.log(
+                            `${key} ${ts_files[i]} ${finished.filter(Boolean).length}/${
+                                ts_files.length
+                            }`,
+                            speed_scores.slice(0, 3),
+                        );
+                    }),
+                );
             }
             this.video_status[key].status = Status.downloading;
 
