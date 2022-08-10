@@ -61,6 +61,9 @@ export function start_server(config: Config) {
         }
         res.json({ ok: true });
     });
+    system.get("/config", async (req, res) => {
+        res.json(config);
+    });
 
     app.use("/system", system);
 

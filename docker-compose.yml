@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  headless:
+    build: 
+      context: .
+      target: runner
+    image: mybbs-headless
+    ports:
+      - "29620:29620"
+    volumes:
+      - store-cache:/store
+    restart: always
+
+volumes:
+  store-cache: {}

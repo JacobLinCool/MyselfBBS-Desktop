@@ -2,11 +2,16 @@
     "private": true,
     "name": "myselfbbs-desktop",
     "description": "Myself Desktop (Unofficial)",
-    "version": "1.0.0-pre.4",
+    "version": "1.0.0-pre.5",
     "main": "dist/app/index.js",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "start": "cross-env DEV=true concurrently 'vite' 'tsc -w' 'electron-forge start'",
+        "headless": "node dist/backend/run.js",
         "build": "vite build && tsc && electron-forge make",
+        "build:headless": "vite build && tsc",
         "package": "electron-forge package",
         "publish": "electron-forge publish",
         "lint": "eslint --ext .ts .",
