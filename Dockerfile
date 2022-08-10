@@ -11,4 +11,3 @@ FROM node:latest as runner
 COPY --from=builder /app /app
 WORKDIR /app
 ENTRYPOINT ["npm", "run", "headless", "--", "-s", "/store" ]
-CMD ["-p", "29620"]

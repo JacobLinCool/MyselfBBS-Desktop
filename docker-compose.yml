@@ -5,8 +5,9 @@ services:
     build: 
       context: .
       target: runner
-    image: mybbs-headless
+    image: myselfbbs-headless
     ports:
+      - "14810:14810"
       - "29620:29620"
     volumes:
       - store-cache:/store
