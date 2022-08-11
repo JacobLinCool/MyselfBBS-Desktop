@@ -299,6 +299,7 @@ export class Storage extends EventEmitter {
 
                     setTimeout(() => {
                         controllers.forEach(({ controller }) => controller.abort());
+                        console.log("Download Aborted (Timed Out)", filepath);
                     }, 60_000);
 
                     let done = false;
@@ -312,6 +313,10 @@ export class Storage extends EventEmitter {
                                 signal: controller.signal,
                             });
                             if (res.ok === false) {
+                                console.error(
+                                    `Failed to download ${file} from ${controller.host}`,
+                                    res.status,
+                                );
                                 return null;
                             }
                             const buffer = await res.buffer();
@@ -321,6 +326,13 @@ export class Storage extends EventEmitter {
                                 speed_scores.find((x) => x.host === controller.host).score++;
                                 speed_scores.sort((a, b) => b.score - a.score);
                                 delay_factor += 0.1;
+                                console.log(
+                                    `Speed Scores: [ ${speed_scores
+                                        .slice(0, 3)
+                                        .map((x) => JSON.stringify(x))
+                                        .join(", ")} ]`,
+                                    `Delay Factor: ${delay_factor}`,
+                                );
                             }
 
                             return buffer;
