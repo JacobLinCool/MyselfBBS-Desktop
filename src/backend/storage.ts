@@ -5,6 +5,7 @@ import { mapping } from "file-mapping";
 import Fuse from "fuse.js";
 import fetch from "node-fetch";
 import { Pool } from "@jacoblincool/puddle";
+import { REMOTE_CACHE } from "./constants";
 import { Anime, RawList } from "./types";
 import { retry, sleep } from "./utils";
 
@@ -76,14 +77,13 @@ export class Storage extends EventEmitter {
         this._updating = true;
 
         console.time("Storage Update");
-        const remote = "https://myself-bbs.jacob.workers.dev/";
-        const airing = fetch(`${remote}list/airing`)
+        const airing = fetch(`${REMOTE_CACHE}/list/airing`)
             .then((res) => res.json())
             .then((res) => res.data.data);
-        const completed = fetch(`${remote}list/completed`)
+        const completed = fetch(`${REMOTE_CACHE}/list/completed`)
             .then((res) => res.json())
             .then((res) => res.data.data);
-        const details = fetch(`${remote}anime/all`)
+        const details = fetch(`${REMOTE_CACHE}/anime/all`)
             .then((res) => res.json())
             .then((res) => res.data.data);
 
@@ -234,9 +234,9 @@ export class Storage extends EventEmitter {
                 } else {
                     console.log("Fetching playlist");
 
-                    const cached = await fetch(
-                        `https://myself-bbs.jacob.workers.dev/m3u8/${vid}/${ep}?min=1`,
-                    ).then((r) => r.json());
+                    const cached = await fetch(`${REMOTE_CACHE}/m3u8/${vid}/${ep}?min=1`).then(
+                        (r) => r.json(),
+                    );
 
                     if (cached.data) {
                         console.log("Using Edge Cached Playlist");
