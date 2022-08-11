@@ -1,12 +1,13 @@
-FROM node:latest as builder
+FROM node:alpine as builder
 
 WORKDIR /app
-COPY . .
+RUN apk add --no-cache make python3 g++
 RUN npm i -g pnpm
-RUN rm -rf out dist
-RUN pnpm i && pnpm build:headless && pnpm prune --prod
+COPY . .
+RUN rm -rf dist
+RUN pnpm i && pnpm rebuild && pnpm build:headless && pnpm prune --prod
 
-FROM node:latest as runner
+FROM node:alpine as runner
 
 COPY --from=builder /app /app
 WORKDIR /app
