@@ -79,3 +79,5 @@ typings/
 
 out/
 dist/
+
+store/

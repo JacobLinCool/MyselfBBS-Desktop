@@ -10,8 +10,6 @@ services:
       - "14810:14810"
       - "29620:29620"
     volumes:
-      - store-cache:/store
-    restart: always
-
-volumes:
-  store-cache: {}
+      - ./store:/store
+      - ./logs:/app/app-logs
+    restart: unless-stopped
