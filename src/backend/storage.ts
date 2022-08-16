@@ -317,7 +317,8 @@ export class Storage extends EventEmitter {
                                     `Failed to download ${file} from ${controller.host}`,
                                     res.status,
                                 );
-                                return null;
+                                await sleep(60_000);
+                                return;
                             }
                             const buffer = await res.buffer();
 
